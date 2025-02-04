@@ -7,17 +7,26 @@ This project provides two Python scripts to scrape Korean Baseball Organization 
 2. **Schedule Data Scraper** - Retrieves game schedules from 2001-04-05 to today or for a specific date.
 
 ## Requirements
-- Python 3.10+
+- Python 3.12+
 
-Install dependencies using:
-```sh
-pip install -r requirements.txt
-```
+### Steps to get started:
+
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/leewr9/kbo-data-collector.git
+    cd kbo-data-collector
+    ```
+
+2. **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Player Data Scraper
 ### Usage
-```sh
-python scrape_player_data.py [-p {hitter,pitcher}] [-a]
+```bash
+cd scripts
+python scripts/scrape_player_data.py [-p {hitter,pitcher}] [-a]
 ```
 ### Arguments
 - `-p, --player` : Choose player type (`hitter` for batters, `pitcher` for pitchers).
@@ -25,22 +34,26 @@ python scrape_player_data.py [-p {hitter,pitcher}] [-a]
 
 ### Examples
 - Scrape hitter data:
-  ```sh
-  python scrape_player_data.py -p hitter
-  ```
+    ```bash
+    cd scripts
+    python scripts/scrape_player_data.py -p hitter
+    ```
 - Scrape pitcher data:
-  ```sh
-  python scrape_player_data.py -p pitcher
-  ```
+    ```bash
+    cd scripts
+    python scripts/scrape_player_data.py -p pitcher
+    ```
 - Scrape all player data:
-  ```sh
-  python scrape_player_data.py -a
-  ```
+    ```bash
+    cd scripts
+    python scripts/scrape_player_data.py -a
+    ```
 
 ## Schedule Data Scraper
 ### Usage
-```sh
-python scrape_schedule_data.py [-d YYYYMMDD] [-f]
+```bash
+cd scripts
+python scripts/scrape_schedule_data.py [-d YYYYMMDD] [-f]
 ```
 ### Arguments
 - `-d, --date` : Fetch schedule data for a specific date (format: `YYYYMMDD`).
@@ -48,13 +61,15 @@ python scrape_schedule_data.py [-d YYYYMMDD] [-f]
 
 ### Examples
 - Scrape schedule for a specific date:
-  ```sh
-  python scrape_schedule_data.py -d 20240501
-  ```
+    ```bash
+    cd scripts
+    python scripts/scrape_schedule_data.py -d 20240501
+    ```
 - Scrape all schedules from 2001-04-05 to today:
-  ```sh
-  python scrape_schedule_data.py -f
-  ```
+    ```bash
+    cd scripts
+    python scripts/scrape_schedule_data.py -f
+    ```
   
 ## Output
 The scraped data is saved in:
