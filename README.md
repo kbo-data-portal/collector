@@ -40,6 +40,8 @@ python run.py game --date <target_date>
 
 > **Note**: Since the `game` command internally fetches the schedule data, the options `-d` and `-f` are the same as those for the `schedule` command and will also apply when scraping game data.
 
+---
+
 #### `player`: Scrapes KBO player data
 
 This command allows you to scrape data for different types of players, including batters, pitchers, fielders, and base runners.
@@ -56,6 +58,8 @@ python run.py player --player <player_type> --season <target_season>
 - `-a, --all`: Scrape data for all players.
 - `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
 
+---
+
 #### `schedule`: Scrapes KBO schedule data
 
 This command scrapes the schedule data for KBO games. You can fetch data for a specific date or scrape all data from the start of the KBO season in 2001 to today.
@@ -67,6 +71,7 @@ python run.py schedule --date <target_date>
 - `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
 - `-f, --full`: Scrape all available data from April 5, 2001, to today.
 
+---
 
 #### `team`: Scrapes KBO team data
 
