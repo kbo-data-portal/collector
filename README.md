@@ -1,15 +1,8 @@
 # KBO Data Collector
 This repository is dedicated to collecting and scraping KBO (Korea Baseball Organization) data. It includes scripts and processes for gathering player statistics, team data, game results, and other related information.
 
-## Overview
-This project provides two Python scripts to scrape Korean Baseball Organization (KBO) data:
-1. **Player Data Scraper** - Fetches player statistics (hitters or pitchers).
-2. **Schedule Data Scraper** - Retrieves game schedules from 2001-04-05 to today or for a specific date.
-
-## Requirements
+## Installation
 - Python 3.12+
-
-### Steps to get started:
 
 1. **Clone the repository**:
     ```bash
@@ -21,60 +14,104 @@ This project provides two Python scripts to scrape Korean Baseball Organization 
     ```bash
     pip install -r requirements.txt
     ```
+    
+## Usage
 
-## Player Data Scraper
-### Usage
+### Main Command
+
+The tool can be run via the command line and offers four main commands: `game`, `player`, `schedule`, and `team`.
 ```bash
-cd scripts
-python scripts/scrape_player_data.py [-p {hitter,pitcher}] [-a]
+python run.py <command> [options]
 ```
-### Arguments
-- `-p, --player` : Choose player type (`hitter` for batters, `pitcher` for pitchers).
-- `-a, --all` : Scrape data for all players.
 
-### Examples
-- Scrape hitter data:
-    ```bash
-    cd scripts
-    python scripts/scrape_player_data.py -p hitter
-    ```
-- Scrape pitcher data:
-    ```bash
-    cd scripts
-    python scripts/scrape_player_data.py -p pitcher
-    ```
-- Scrape all player data:
-    ```bash
-    cd scripts
-    python scripts/scrape_player_data.py -a
-    ```
+### Commands
 
-## Schedule Data Scraper
-### Usage
+### `game`: Scrapes KBO game data
+
+This command scrapes data related to specific KBO games. It will internally fetch schedule data as well.
+
 ```bash
-cd scripts
-python scripts/scrape_schedule_data.py [-d YYYYMMDD] [-f]
+python run.py game --date <target_date>
 ```
-### Arguments
-- `-d, --date` : Fetch schedule data for a specific date (format: `YYYYMMDD`).
-- `-f, --full` : Scrape all schedule data from 2001-04-05 to today.
 
-### Examples
-- Scrape schedule for a specific date:
+#### Options:
+- `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
+- `-f, --full`: Scrape all available data from April 5, 2001, to today.
+
+> **Note**: Since the `game` command internally fetches the schedule data, the options `-d` and `-f` are the same as those for the `schedule` command and will also apply when scraping game data.
+
+#### `player`: Scrapes KBO player data
+
+This command allows you to scrape data for different types of players, including batters, pitchers, fielders, and base runners.
+```bash
+python run.py player --player <player_type> --season <target_season>
+```
+
+##### Options:
+- `-p, --player`: Specify the type of player data to scrape. Valid options are:
+  - `hitter` for batting statistics
+  - `pitcher` for pitching statistics
+  - `fielder` for fielding statistics
+  - `runner` for base running statistics
+- `-a, --all`: Scrape data for all players.
+- `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
+
+#### `schedule`: Scrapes KBO schedule data
+
+This command scrapes the schedule data for KBO games. You can fetch data for a specific date or scrape all data from the start of the KBO season in 2001 to today.
+```bash
+python run.py schedule --date <target_date>
+```
+
+##### Options:
+- `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
+- `-f, --full`: Scrape all available data from April 5, 2001, to today.
+
+
+#### `team`: Scrapes KBO team data
+
+This command scrapes data related to KBO teams.
+```bash
+python run.py team
+```
+
+### Help
+
+For more detailed information on any command, you can use the `--help` flag:
+
+```bash
+python run.py <command> --help
+```
+
+## Functions
+
+Each command is mapped to a corresponding function in the code:
+
+- `scrape_game_data_command`: Handles scraping of game data.
+- `scrape_player_data_command`: Handles scraping of player data.
+- `scrape_schedule_data_command`: Handles scraping of schedule data.
+- `scrape_team_data_command`: Handles scraping of team data.
+
+These functions take care of the web scraping and data processing based on the command-line arguments passed.
+
+---
+
+## Example Commands
+
+1. **Scrape Game Data:**
     ```bash
-    cd scripts
-    python scripts/scrape_schedule_data.py -d 20240501
+    python run.py game --date 20240205
     ```
-- Scrape all schedules from 2001-04-05 to today:
+
+2. **Scrape Player Data for Batters in 2024 Season:**
     ```bash
-    cd scripts
-    python scripts/scrape_schedule_data.py -f
+    python run.py player --player hitter --season 2024
     ```
-  
-## Output
-The scraped data is saved in:
-- **CSV Format:** `output/baseball_schedule.csv` / `{player_type}_player_stats.csv`
-- **Parquet Format:** `output/baseball_schedule.parquet` / `{player_type}_player_stats.parquet`
+
+3. **Scrape KBO Schedule Data for a Specific Date:**
+    ```bash
+    python run.py schedule --date 20240205
+    ```
 
 ## License  
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
