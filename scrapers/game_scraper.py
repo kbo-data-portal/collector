@@ -29,7 +29,7 @@ def extract_data(tables):
     
     return combined_data
 
-def extract_hitter_stats(data, game_id, player_datas):
+def extract_hitter_stats(data, game_id, player_data):
     """
     Extracts hitter statistics for a specific Korean baseball game.
     """
@@ -54,16 +54,16 @@ def extract_hitter_stats(data, game_id, player_datas):
         logger.error(f"Error decoding hitter data for game {game_id}: {e}")
         return
 
-    player_datas[HOME][Player.HITTER].extend(
+    player_data[HOME][Player.HITTER].extend(
         [convert_row_data(headers, [game_id, "H"] + player) 
          for player in home]
     )
-    player_datas[AWAY][Player.HITTER].extend(
+    player_data[AWAY][Player.HITTER].extend(
         [convert_row_data(headers, [game_id, "A"] + player) 
          for player in away]
     )
 
-def extract_pitcher_stats(data, game_id, player_datas):
+def extract_pitcher_stats(data, game_id, player_data):
     """
     Extracts pitcher statistics for a specific Korean baseball game.
     """
@@ -78,16 +78,16 @@ def extract_pitcher_stats(data, game_id, player_datas):
         logger.error(f"Error decoding pitcher data for game {game_id}: {e}")
         return
 
-    player_datas[HOME][Player.PITCHER].extend(
+    player_data[HOME][Player.PITCHER].extend(
         [convert_row_data(headers, [game_id, "H"] + player) 
          for player in home]
     )
-    player_datas[AWAY][Player.PITCHER].extend(
+    player_data[AWAY][Player.PITCHER].extend(
         [convert_row_data(headers, [game_id, "A"] + player) 
          for player in away]
     )
 
-def scrape_game_stats(url, payload, player_datas):
+def scrape_game_stats(url, payload, player_data):
     """
     Scrapes hitter and pitcher statistics for a specific Korean baseball game.
     Extracts both home and away team data.
@@ -97,8 +97,8 @@ def scrape_game_stats(url, payload, player_datas):
     game_id = payload["gameId"]
     logger.info(f"Scraping game detail for {game_id}...")
 
-    player_datas.setdefault(HOME, {Player.HITTER: [], Player.PITCHER: []})
-    player_datas.setdefault(AWAY, {Player.HITTER: [], Player.PITCHER: []})
+    player_data.setdefault(HOME, {Player.HITTER: [], Player.PITCHER: []})
+    player_data.setdefault(AWAY, {Player.HITTER: [], Player.PITCHER: []})
 
     try:
         json_data = parse_json_from_url(url, payload)
@@ -112,10 +112,10 @@ def scrape_game_stats(url, payload, player_datas):
         logger.error(f"Error decoding JSON for player stats in game {game_id}: {e}")
         return
     
-    extract_hitter_stats(json_data, game_id, player_datas)
-    extract_pitcher_stats(json_data, game_id, player_datas)
+    extract_hitter_stats(json_data, game_id, player_data)
+    extract_pitcher_stats(json_data, game_id, player_data)
 
-def scrape_game_details(url, payload, game_datas):
+def scrape_game_details(url, payload, game_data):
     """
     Scrapes Korean baseball game detail for the specified game.
     """
@@ -124,8 +124,8 @@ def scrape_game_details(url, payload, game_datas):
     game_id = payload["gameId"]
     logger.info(f"Scraping game detail for {game_id}...")
     
-    game_datas.setdefault(HOME, [])
-    game_datas.setdefault(AWAY, [])
+    game_data.setdefault(HOME, [])
+    game_data.setdefault(AWAY, [])
 
     try:
         json_data = parse_json_from_url(url, payload)
@@ -162,21 +162,21 @@ def scrape_game_details(url, payload, game_datas):
 
     headers += ["W/L", "W/L/T"] + [f"INN_{inn}" for inn in range(1, innings + 1)] + ["R", "H", "E", "B"]
 
-    game_datas[HOME].append(convert_row_data(headers, rows[HOME] + data[1]))
-    game_datas[AWAY].append(convert_row_data(headers, rows[AWAY] + data[0]))
+    game_data[HOME].append(convert_row_data(headers, rows[HOME] + data[1]))
+    game_data[AWAY].append(convert_row_data(headers, rows[AWAY] + data[0]))
 
 def run(filename, format):
     """ 
     Scrapes detailed game data, including schedule and player statistics.
     """
-    schedule_datas = read_scraped_data(filename)
+    schedule_data = read_scraped_data(filename)
 
     urls = URLS[Scraper.GAME]
     filenames = FILENAMES[Scraper.GAME]
     payload = PAYLOADS[Scraper.GAME]
 
-    game_datas, player_datas = {}, {}
-    for schedule in schedule_datas:
+    game_data, player_data = {}, {}
+    for schedule in schedule_data:
         if not "G_ID" in schedule:
             logger.error(f"Invalid date format. Please check the {filename}")
             exit(1)
@@ -186,21 +186,21 @@ def run(filename, format):
         
         logger.info(f"Starting to scrape Korean baseball schedule data from {payload["gameId"]}...")
 
-        scrape_game_details(urls[Game.DETAIL], payload, game_datas)
-        scrape_game_stats(urls[Game.STAT], payload, player_datas)
+        scrape_game_details(urls[Game.DETAIL], payload, game_data)
+        scrape_game_stats(urls[Game.STAT], payload, player_data)
     
-    game_datas[Game.DETAIL] = game_datas[HOME] + game_datas[AWAY]
-    save_scraped_data(game_datas[Game.DETAIL], filenames[Game.DETAIL], format)
+    game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
+    save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], format)
     
-    player_datas.setdefault(Player.HITTER, [])
-    player_datas[Player.HITTER].extend(player_datas[HOME][Player.HITTER])
-    player_datas[Player.HITTER].extend(player_datas[AWAY][Player.HITTER])
-    save_scraped_data(player_datas[Player.HITTER], 
+    player_data.setdefault(Player.HITTER, [])
+    player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
+    player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
+    save_scraped_data(player_data[Player.HITTER], 
                       filenames[Game.STAT][Player.HITTER], format)
     
-    player_datas.setdefault(Player.PITCHER, [])
-    player_datas[Player.PITCHER].extend(player_datas[HOME][Player.PITCHER])
-    player_datas[Player.PITCHER].extend(player_datas[AWAY][Player.PITCHER])
-    save_scraped_data(player_datas[Player.PITCHER], 
+    player_data.setdefault(Player.PITCHER, [])
+    player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
+    player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
+    save_scraped_data(player_data[Player.PITCHER], 
                       filenames[Game.STAT][Player.PITCHER], format)
 

@@ -30,7 +30,7 @@ def extract_data(soup, season):
         logger.error(f"Unexpected error while extracting data for season {season}: {e}")
         return None, None
 
-def scrape_player(url, payload, target_season, player_datas):
+def scrape_player(url, payload, target_season, player_data):
     """
     Main function to scrape Korean baseball stats for a range of seasons and pages.
     """
@@ -67,14 +67,15 @@ def scrape_player(url, payload, target_season, player_datas):
 
                 for row in rows:
                     player_key = f"{season}{row[1]}{row[2]}"
-                    player_datas.setdefault(player_key, {"SEASON_ID": season})
-                    player_datas[player_key].update(convert_row_data(headers, row))
+                    player_data.setdefault(player_key, {"SEASON_ID": season})
+                    player_data[player_key].update(convert_row_data(headers, row))
             except Exception as e:
                 logger.error(f"Error during scraping page {page}, season {season}: {e}")
                 continue
 
         if target_season and target_season == season:
             break
+    session.close()
 
 def run(player_type, season, format):
     """
@@ -86,8 +87,8 @@ def run(player_type, season, format):
     filenames = FILENAMES[Scraper.PLAYER]
     payload = PAYLOADS[Scraper.PLAYER]
 
-    player_datas = {}
+    player_data = {}
     for url in urls[player_type]:
-        scrape_player(url, payload, season, player_datas)
+        scrape_player(url, payload, season, player_data)
 
-    save_scraped_data(player_datas, filenames[player_type], format)
+    save_scraped_data(player_data, filenames[player_type], format)

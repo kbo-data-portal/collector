@@ -7,7 +7,7 @@ from config import Scraper
 from utils.request import parse_json_from_url
 from utils.storage import save_scraped_data
 
-def scrape_game_schedule(url, payload, start_date, end_date, schedule_datas):
+def scrape_schedule(url, payload, start_date, end_date, schedule_data):
     """
     Scrapes Korean baseball game data for the specified date range.
     """
@@ -27,7 +27,7 @@ def scrape_game_schedule(url, payload, start_date, end_date, schedule_datas):
                 current_date += timedelta(days=1)
                 continue
 
-            schedule_datas.extend(json_data["game"])
+            schedule_data.extend(json_data["game"])
         except Exception as e:
             logger.error(f"Error occurred while scraping data for {date_str}: {e}")
         
@@ -43,7 +43,7 @@ def run(start_date, end_date, format):
     filename = FILENAMES[Scraper.SCHEDULE]
     payload = PAYLOADS[Scraper.SCHEDULE]
 
-    schedule_datas = []
-    scrape_game_schedule(url, payload, start_date, end_date, schedule_datas)
+    schedule_data = []
+    scrape_schedule(url, payload, start_date, end_date, schedule_data)
 
-    save_scraped_data(schedule_datas, filename, format)
+    save_scraped_data(schedule_data, filename, format)

@@ -7,12 +7,7 @@ from config import logger
 from config import FILENAMES
 from config import Scraper, Player
 
-from scrapers import (
-    game_scraper,
-    player_scraper,
-    schedule_scraper,
-    team_scraper
-)
+from scrapers import game_scraper, player_scraper, schedule_scraper, team_scraper
 
 def scrape_game_data_command(args):
     if args.path:
