@@ -35,7 +35,7 @@ def extract_hitter_stats(data, game_id, player_data):
     """
     innings = data.get("realMaxInning", 0)
 
-    headers = ["G_ID", "BAT", "POS", "선수명"]
+    headers = ["G_ID", "H/A", "BAT", "POS", "선수명"]
     headers += [f"INN_{inn}" for inn in range(1, innings + 1)]
     headers += ["타수", "안타", "타점", "득점", "타율"]
 
