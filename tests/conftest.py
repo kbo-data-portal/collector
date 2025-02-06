@@ -33,7 +33,7 @@ def columns():
             ],
             Game.STAT: {
                 Player.HITTER: [
-                    "G_ID", "BAT", "POS", "P_NM", "INN_1", "INN_2", "INN_3", "INN_4", 
+                    "G_ID", "H_A", "BAT", "POS", "P_NM", "INN_1", "INN_2", "INN_3", "INN_4", 
                     "INN_5", "INN_6", "INN_7", "INN_8", "INN_9", "AB", "H", "RBI", 
                     "R", "AVG"
                 ],
