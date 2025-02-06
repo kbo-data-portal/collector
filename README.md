@@ -1,4 +1,6 @@
 # KBO Data Collector
+[![Test Scraper Status](https://github.com/leewr9/kbo-data-collector/actions/workflows/test_scraper.yml/badge.svg)](https://github.com/leewr9/kbo-data-collector/actions/workflows/test_scraper.yml)
+
 This repository is dedicated to collecting and scraping KBO (Korea Baseball Organization) data. It includes scripts and processes for gathering player statistics, team data, game results, and other related information.
 
 ## Installation
