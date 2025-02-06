@@ -13,9 +13,9 @@ def scrape_game_data_command(args):
     if args.path:
         game_scraper.run(args.path, args.format)
     else:
-        scrape_schedule_data_command(args)
-        filename = f"{FILENAMES[Scraper.SCHEDULE]}.{args.format}"
-        game_scraper.run(filename, args.format)
+        if scrape_schedule_data_command(args):
+            filename = f"{FILENAMES[Scraper.SCHEDULE]}.{args.format}"
+            game_scraper.run(filename, args.format)
 
 def scrape_player_data_command(args):
     if args.player:
@@ -26,7 +26,7 @@ def scrape_player_data_command(args):
 
 def scrape_schedule_data_command(args):
     if args.full:
-        schedule_scraper.run(
+        return schedule_scraper.run(
             start_date=datetime.strptime("20010405", "%Y%m%d"), 
             end_date=datetime.now(),
             format=args.format
@@ -40,7 +40,7 @@ def scrape_schedule_data_command(args):
                 exit(1)
         else:
             target_date = datetime.now()
-        schedule_scraper.run(
+        return schedule_scraper.run(
             start_date=target_date, 
             end_date=target_date,
             format=args.format
