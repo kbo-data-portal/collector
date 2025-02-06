@@ -177,8 +177,6 @@ def run(filename, format="parquet"):
 
     game_data, player_data = {}, {}
     for schedule in schedule_data:
-        if "status" in schedule:
-            continue
         if not "G_ID" in schedule:
             logger.error(f"Invalid date format. Please check the {filename}")
             exit(1)
