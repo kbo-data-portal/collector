@@ -91,7 +91,7 @@ def scrape_player(url, target_season, player_datas):
         if target_season and target_season == season:
             break
 
-def run(player_type, season):
+def run(player_type, season, format):
     """
     Scrapes data for the given player type (hitter or pitcher).
     """
@@ -125,4 +125,4 @@ def run(player_type, season):
         "runner": "running_stats_player"
     }
 
-    save_scraped_data(player_datas, filenames[player_type])
+    save_scraped_data(player_datas, filenames[player_type], format)

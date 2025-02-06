@@ -25,7 +25,7 @@ def scrape_game_schedule(url, start_date, end_date, schedule_datas):
         schedule_datas.extend(json_data["game"])
         current_date += timedelta(days=1)
 
-def run(start_date, end_date):
+def run(start_date, end_date, format):
     """ 
     Scrapes schedule data for the given date range.
     """
@@ -37,4 +37,4 @@ def run(start_date, end_date):
     print(f"Scraping data from: {url}")
     scrape_game_schedule(url, start_date, end_date, schedule_datas)
 
-    save_scraped_data(schedule_datas, "game_schedule")
+    save_scraped_data(schedule_datas, "game_schedule", format)

@@ -118,7 +118,7 @@ def scrape_player_stats(url, series_id, season_id, game_id, player_datas):
         [convert_row_data(pitcher_headers, [game_id, "AWAY"] + player) for player in away_pitchers]
     )
 
-def run(schedule_path):
+def run(schedule_path, format):
     """ 
     Scrapes detailed game data, including schedule and player statistics.
     """
@@ -138,7 +138,9 @@ def run(schedule_path):
         print(f"Scraping data from: {url}")
         scrape_player_stats(url, series_id, season_id, game_id, player_datas)
 
-    save_scraped_data(game_datas["HOME"] + game_datas["AWAY"], "game_details")
-    save_scraped_data(player_datas["HOME"]["hitter"] + player_datas["AWAY"]["hitter"], "batting_stats_game")
-    save_scraped_data(player_datas["HOME"]["pitcher"] + player_datas["AWAY"]["pitcher"], "pitching_stats_game")
+    save_scraped_data(game_datas["HOME"] + game_datas["AWAY"], "game_details", format)
+    save_scraped_data(player_datas["HOME"]["hitter"] + player_datas["AWAY"]["hitter"], 
+                      "batting_stats_game", format)
+    save_scraped_data(player_datas["HOME"]["pitcher"] + player_datas["AWAY"]["pitcher"], 
+                      "pitching_stats_game", format)
 

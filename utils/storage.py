@@ -23,7 +23,7 @@ def read_scraped_data(file_path):
         print(f"Error reading Parquet file: {e}")
         return None
     
-def save_scraped_data(data, filename):
+def save_scraped_data(data, filename, format="parquet"):
     """
     Save the scraped data to CSV and Parquet files with a specific filename prefix.
     """
@@ -45,10 +45,26 @@ def save_scraped_data(data, filename):
         if "POS" in df:
             df["POS"] = df["POS"].astype(str)
                 
-        df.to_csv(os.path.join(output_dir, f"{filename}.csv"), index=False, encoding="utf-8") 
-        df.to_parquet(os.path.join(output_dir, f"{filename}.parquet"), engine="pyarrow", index=False)
-        
-        print(f"Data saved as {filename}.csv and {filename}.parquet.")
+        if format == 'parquet':
+            file_path = os.path.join(output_dir, f"{filename}.parquet")
+            df.to_parquet(file_path, engine="pyarrow", index=False)
+
+            print(f"Successfully save Parquet file: {file_path}")
+        elif format == 'json':
+            file_path = os.path.join(output_dir, f"{filename}.json")
+            json_data = df.to_json(orient="records", indent=4, force_ascii=False)
+
+            json_data = json_data.replace(r'\/', '/')
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(json_data)
+            print(f"Successfully save JSON file: {file_path}")
+        elif format == 'csv':
+            file_path = os.path.join(output_dir, f"{filename}.csv")
+            df.to_csv(file_path, index=False, encoding="utf-8") 
+
+            print(f"Successfully save CSV file: {file_path}")
+        else:
+            print(f"Unsupported file format: {format}")
     
     except Exception as e:
         print(f"Error saving data: {e}")
