@@ -1,12 +1,13 @@
 name: Test Scraper
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   test_scraper:
