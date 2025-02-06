@@ -13,7 +13,7 @@ def convert_column_name(column_str):
         "득점": "R",
         "타율": "AVG",
         "등판": "POS",
-        "결과": "W/L",
+        "결과": "W_L",
         "승": "W",
         "패": "L",
         "세": "SV",
@@ -28,7 +28,7 @@ def convert_column_name(column_str):
         "자책": "ER",
         "평균자책점": "ERA",
     }
-    return column_map.get(column_str, column_str.upper())
+    return column_map.get(column_str, column_str.replace("/", "_").upper())
 
 def convert_to_data(fraction_str):
     """
