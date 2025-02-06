@@ -13,7 +13,7 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
     """
     logger.info(f"Scraping data from: {url}")
 
-    current_date = start_date
+    current_date = start_date.replace()
     while current_date <= end_date:
         date_str = current_date.strftime("%Y%m%d")
         
