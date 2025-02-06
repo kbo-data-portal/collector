@@ -53,17 +53,25 @@ URLS = {
 }
 
 PAYLOADS = {
-    Scraper.GAME: {"leId": "1"},
+    Scraper.GAME: {
+        "leId": "1",
+        "srId": None,
+        "seasonId": None,
+        "gameId": None
+    },
     Scraper.PLAYER: {
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$smData": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$udpContent|ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeries$ddlSeries": "0",
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderByCol": "GAME_CN",
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderBy": "DESC",
-        "__EVENTTARGET": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy"
+        "__EVENTTARGET": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
+        "__VIEWSTATE": None,
+        "__EVENTVALIDATION": None
     },
     Scraper.SCHEDULE: {
         "leId": "1",
-        "srId": "0,1,3,4,5,6,7,8,9"
+        "srId": "0,1,3,4,5,6,7,8,9",
+        "date": None
     }
 }
 
