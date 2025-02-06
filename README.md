@@ -35,6 +35,7 @@ python run.py game --date <target_date>
 ```
 
 #### Options:
+- `-p, --path`: Path to the schedule file to be parsed.
 - `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
 - `-f, --full`: Scrape all available data from April 5, 2001, to today.
 

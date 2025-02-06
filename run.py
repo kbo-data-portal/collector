@@ -1,6 +1,12 @@
+import os
 import argparse
 import textwrap
 from datetime import datetime
+
+from config import logger
+from config import FILENAMES
+from config import Scraper, Player
+
 from scrapers import (
     game_scraper,
     player_scraper,
@@ -9,15 +15,19 @@ from scrapers import (
 )
 
 def scrape_game_data_command(args):
-    scrape_schedule_data_command(args)
-    game_scraper.run("output/game_schedule.parquet", args.format)
+    if args.path:
+        game_scraper.run(args.path, args.format)
+    else:
+        scrape_schedule_data_command(args)
+        filename = f"{FILENAMES[Scraper.SCHEDULE]}.{args.format}"
+        game_scraper.run(filename, args.format)
 
 def scrape_player_data_command(args):
     if args.player:
-        player_scraper.run(args.player, args.season, args.format)
+        player_scraper.run(Player(args.player), args.season, args.format)
     else:
-        player_scraper.run("hitter", args.season, args.format)
-        player_scraper.run("pitcher", args.season, args.format)
+        player_scraper.run(Player.HITTER, args.season, args.format)
+        player_scraper.run(Player.PITCHER, args.season, args.format)
 
 def scrape_schedule_data_command(args):
     if args.full:
@@ -31,7 +41,7 @@ def scrape_schedule_data_command(args):
             try:
                 target_date = datetime.strptime(args.date, "%Y%m%d")
             except ValueError:
-                print("Invalid date format. Please use YYYYMMDD.")
+                logger.error("Invalid date format. Please use YYYYMMDD.")
                 exit(1)
         else:
             target_date = datetime.now()
@@ -63,6 +73,7 @@ def main():
         help="KBO Game Data Scraper",
         formatter_class=argparse.RawTextHelpFormatter
     )
+    game_parser.add_argument("-p", "--path", type=str, help="Path to the schedule file to be parsed.")
     game_parser.add_argument("-d", "--date", type=str, help="Specify a date (YYYYMMDD) to fetch data for that day.")
     game_parser.add_argument("-f", "--full", action="store_true", help="Scrape all data from 2001-04-05 to today.")
     game_parser.set_defaults(func=scrape_game_data_command)
@@ -74,7 +85,8 @@ def main():
     )
     player_parser.add_argument(
         "-p", "--player", 
-        type=str, choices=["hitter", "pitcher", "fielder", "runner"], 
+        type=str, choices=[Player.HITTER.value, Player.PITCHER.value, 
+                           Player.FIELDER.value, Player.RUNNER.value], 
         help=textwrap.dedent("""\
             Specify the player type to scrape:
               'hitter'  - Batting statistics
