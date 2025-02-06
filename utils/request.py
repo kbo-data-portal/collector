@@ -30,7 +30,7 @@ def parse_html_from_page(session, url, payload):
     """
     response = send_post_request(url, payload, session)
     if response:
-        return BeautifulSoup(response.text, "lxml")
+        return BeautifulSoup(response.text, "lxml-xml")
     return None
 
 def parse_json_from_url(url, payload):
@@ -52,7 +52,7 @@ def initiate_session(url):
         response = session.get(url)
         response.raise_for_status()
 
-        soup = BeautifulSoup(response.text, "lxml")
+        soup = BeautifulSoup(response.text, "lxml-xml")
         viewstate = soup.find("input", {"id": "__VIEWSTATE"})["value"]
         eventvalidation = soup.find("input", {"id": "__EVENTVALIDATION"})["value"]
         
