@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
+from lxml import etree
 from config import logger
 
 def send_post_request(url, payload, session=None):
@@ -30,7 +31,7 @@ def parse_html_from_page(session, url, payload):
     """
     response = send_post_request(url, payload, session)
     if response:
-        return BeautifulSoup(response.text, "lxml-xml")
+        return BeautifulSoup(response.text, "lxml")
     return None
 
 def parse_json_from_url(url, payload):
@@ -51,8 +52,8 @@ def initiate_session(url):
     try:
         response = session.get(url)
         response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, "lxml-xml")
+        
+        soup = BeautifulSoup(response.text, "lxml")
         viewstate = soup.find("input", {"id": "__VIEWSTATE"})["value"]
         eventvalidation = soup.find("input", {"id": "__EVENTVALIDATION"})["value"]
         
