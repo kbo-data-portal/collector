@@ -1,4 +1,5 @@
 output/
+logs/
 test.*
 
 # Byte-compiled / optimized / DLL files

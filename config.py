@@ -21,14 +21,13 @@ class Player(Enum):
     RUNNER = "runner"
 
 # Constants
-NOW = time.strftime("%Y-%m-%d_%H-%M-%S")
 HOME = "home"
 AWAY = "away"
 
 # Directories and Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_DIR = os.path.join(BASE_DIR, "output", NOW)
-LOG_DIR = os.path.join(BASE_DIR, "logs", NOW)
+OUTPUT_DIR = os.path.join(BASE_DIR, "output", time.strftime("%Y-%m-%d"))
+LOG_DIR = os.path.join(BASE_DIR, "logs")
 
 # URL and Payload Configuration
 URLS = {
@@ -107,7 +106,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO) 
 stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
-file_handler = logging.FileHandler(os.path.join(LOG_DIR, "run.log"))
+file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime("%Y-%m-%d_%H")}.log"))
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
