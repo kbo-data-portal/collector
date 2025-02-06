@@ -194,17 +194,18 @@ def run(filename, format):
     if game_data and player_data:
         game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
         save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], format)
-        
+
         player_data.setdefault(Player.HITTER, [])
         player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
         player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
         save_scraped_data(player_data[Player.HITTER], 
                           filenames[Game.STAT][Player.HITTER], format)
-        
+
         player_data.setdefault(Player.PITCHER, [])
         player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
         player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
         save_scraped_data(player_data[Player.PITCHER], 
                           filenames[Game.STAT][Player.PITCHER], format)
+        return True
     
-    
+    return False

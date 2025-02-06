@@ -93,3 +93,6 @@ def run(player_type, season, format):
         
     if player_data:
         save_scraped_data(player_data, filenames[player_type], format)
+        return True
+    
+    return False

@@ -51,3 +51,6 @@ def run(start_date, end_date, format):
 
     if schedule_data:
         save_scraped_data(schedule_data, filename, format)
+        return True
+    
+    return False
