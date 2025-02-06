@@ -77,7 +77,7 @@ def scrape_player(url, payload, target_season, player_data):
             break
     session.close()
 
-def run(player_type, season, format):
+def run(player_type, season, format="parquet"):
     """
     Scrapes data for the given player type (hitter or pitcher).
     """

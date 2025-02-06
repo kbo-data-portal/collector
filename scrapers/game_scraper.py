@@ -165,7 +165,7 @@ def scrape_game_details(url, payload, game_data):
     game_data[HOME].append(convert_row_data(headers, rows[HOME] + data[1]))
     game_data[AWAY].append(convert_row_data(headers, rows[AWAY] + data[0]))
 
-def run(filename, format):
+def run(filename, format="parquet"):
     """ 
     Scrapes detailed game data, including schedule and player statistics.
     """

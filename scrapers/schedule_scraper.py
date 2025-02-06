@@ -36,7 +36,7 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
     if not schedule_data:
         schedule_data.append({"status": "No games available for this date"})
 
-def run(start_date, end_date, format):
+def run(start_date, end_date, format="parquet"):
     """ 
     Scrapes schedule data for the given date range.
     """

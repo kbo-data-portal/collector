@@ -33,7 +33,7 @@ def read_scraped_data(filename):
         logger.error(f"Error reading file: {e}")
         return None
     
-def save_scraped_data(data, filename, format="parquet"):
+def save_scraped_data(data, filename, format):
     """
     Save the scraped data to CSV and Parquet files with a specific filename prefix.
     """
