@@ -32,6 +32,9 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
             logger.error(f"Error occurred while scraping data for {date_str}: {e}")
         
         current_date += timedelta(days=1)
+    
+    if not schedule_data:
+        schedule_data.append({"status": "No games available for this date"})
 
 def run(start_date, end_date, format):
     """ 
@@ -46,4 +49,5 @@ def run(start_date, end_date, format):
     schedule_data = []
     scrape_schedule(url, payload, start_date, end_date, schedule_data)
 
-    save_scraped_data(schedule_data, filename, format)
+    if schedule_data:
+        save_scraped_data(schedule_data, filename, format)

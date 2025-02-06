@@ -177,6 +177,8 @@ def run(filename, format):
 
     game_data, player_data = {}, {}
     for schedule in schedule_data:
+        if "status" in schedule:
+            continue
         if not "G_ID" in schedule:
             logger.error(f"Invalid date format. Please check the {filename}")
             exit(1)
@@ -189,18 +191,20 @@ def run(filename, format):
         scrape_game_details(urls[Game.DETAIL], payload, game_data)
         scrape_game_stats(urls[Game.STAT], payload, player_data)
     
-    game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
-    save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], format)
+    if game_data and player_data:
+        game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
+        save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], format)
+        
+        player_data.setdefault(Player.HITTER, [])
+        player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
+        player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
+        save_scraped_data(player_data[Player.HITTER], 
+                          filenames[Game.STAT][Player.HITTER], format)
+        
+        player_data.setdefault(Player.PITCHER, [])
+        player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
+        player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
+        save_scraped_data(player_data[Player.PITCHER], 
+                          filenames[Game.STAT][Player.PITCHER], format)
     
-    player_data.setdefault(Player.HITTER, [])
-    player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
-    player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
-    save_scraped_data(player_data[Player.HITTER], 
-                      filenames[Game.STAT][Player.HITTER], format)
     
-    player_data.setdefault(Player.PITCHER, [])
-    player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
-    player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
-    save_scraped_data(player_data[Player.PITCHER], 
-                      filenames[Game.STAT][Player.PITCHER], format)
-

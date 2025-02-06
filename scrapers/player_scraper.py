@@ -90,5 +90,6 @@ def run(player_type, season, format):
     player_data = {}
     for url in urls[player_type]:
         scrape_player(url, payload, season, player_data)
-
-    save_scraped_data(player_data, filenames[player_type], format)
+        
+    if player_data:
+        save_scraped_data(player_data, filenames[player_type], format)
