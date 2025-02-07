@@ -2,7 +2,7 @@ from datetime import datetime
 
 from config import logger
 from config import URLS, PAYLOADS, FILENAMES
-from config import Scraper
+from config import Scraper, Player
 
 from utils.convert import convert_row_data
 from utils.request import initiate_session, parse_html_from_page
@@ -88,7 +88,7 @@ def run(player_type, season, format="parquet"):
     payload = PAYLOADS[Scraper.PLAYER]
 
     player_data = {}
-    for url in urls[player_type]:
+    for url in urls[Player(player_type)]:
         scrape_player(url, payload, season, player_data)
         
     if player_data:

@@ -19,10 +19,10 @@ def scrape_game_data_command(args):
 
 def scrape_player_data_command(args):
     if args.player:
-        player_scraper.run(Player(args.player), args.season, args.format)
+        player_scraper.run(args.player, args.season, args.format)
     else:
-        player_scraper.run(Player.HITTER, args.season, args.format)
-        player_scraper.run(Player.PITCHER, args.season, args.format)
+        player_scraper.run(Player.HITTER.value, args.season, args.format)
+        player_scraper.run(Player.PITCHER.value, args.season, args.format)
 
 def scrape_schedule_data_command(args):
     if args.full:
