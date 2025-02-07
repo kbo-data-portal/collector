@@ -4,9 +4,37 @@ from config import logger
 from config import URLS, FILENAMES, PAYLOADS
 from config import Scraper
 
+from utils.convert import convert_row_data
 from utils.request import parse_json_from_url
 from utils.storage import save_scraped_data
 
+def extract_data(json):
+    """
+    Extract headers and schedule data store it in a dictionary.
+    """
+    if not json:
+        logger.error("Skipping schedule due to parsing error.")
+        return None, None
+    
+    try:
+        games = json.get("game", [])
+        if not games:
+            logger.info("Skipping schedule due to parsing.")
+            return None, None
+
+        headers = [header.strip() for header in games[0].keys()]
+        rows = [
+            [row for row in game.values()] 
+            for game in games
+        ]
+        return headers, rows
+    except AttributeError as e:
+        logger.error(f"Error parsing schedule data: {e}")
+        return None, None
+    except Exception as e:
+        logger.error(f"Unexpected error while extracting data: {e}")
+        return None, None
+    
 def scrape_schedule(url, payload, start_date, end_date, schedule_data):
     """
     Scrapes Korean baseball game data for the specified date range.
@@ -26,8 +54,15 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
                 logger.warning(f"No valid data found for {date_str}. Skipping...")
                 current_date += timedelta(days=1)
                 continue
+            
+            headers, rows = extract_data(json_data)
+            if not rows:
+                logger.info(f"Reached the end of data for {date_str}.")
+                current_date += timedelta(days=1)
+                continue  
 
-            schedule_data.extend(json_data["game"])
+            for row in rows:
+                schedule_data.append(convert_row_data(headers, row))
         except Exception as e:
             logger.error(f"Error occurred while scraping data for {date_str}: {e}")
         
