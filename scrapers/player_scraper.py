@@ -13,7 +13,7 @@ def extract_data(soup, season):
     Extract table headers and player data from the page and store it in a dictionary.
     """
     if not soup:
-        logger.info(f"Skipping season {season} due to parsing error.")
+        logger.error(f"Skipping season {season} due to parsing error.")
         return None, None
     
     try:
