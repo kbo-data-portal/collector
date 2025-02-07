@@ -17,8 +17,8 @@ class Game(Enum):
 class Player(Enum):
     HITTER = "hitter"
     PITCHER = "pitcher"
-    FIELDER = "fielder"
-    RUNNER = "runner"
+    #FIELDER = "fielder"
+    #RUNNER = "runner"
 
 # Constants
 HOME = "home"
@@ -85,8 +85,8 @@ FILENAMES = {
     Scraper.PLAYER: {
         Player.HITTER: "batting_stats_player",
         Player.PITCHER: "pitching_stats_player",
-        Player.FIELDER: "fielding_stats_player",
-        Player.RUNNER: "running_stats_player"
+        #Player.FIELDER: "fielding_stats_player",
+        #Player.RUNNER: "running_stats_player"
     },
     Scraper.SCHEDULE: "game_schedules"
 }
