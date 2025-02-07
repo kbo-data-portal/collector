@@ -52,8 +52,8 @@ def columns():
                 "SEASON_ID", "P_NM", "TEAM_NM", "ERA", "G", "W", "L", "SV", "HLD", 
                 "WPCT", "IP", "H", "HR", "BB", "HBP", "SO", "R", "ER", "WHIP"
             ],
-            Player.FIELDER: [],
-            Player.RUNNER: []
+            #Player.FIELDER: [],
+            #Player.RUNNER: []
         },
         Scraper.SCHEDULE: [
             "LE_ID", "SR_ID", "SEASON_ID", "G_DT", "G_DT_TXT", "G_ID", "HEADER_NO", 

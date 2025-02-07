@@ -82,13 +82,14 @@ def run(player_type, season, format="parquet"):
     Scrapes data for the given player type (hitter or pitcher).
     """
     logger.info(f"Starting to scrape Korean baseball {player_type} data...")
+    player_type = Player(player_type)
 
     urls = URLS[Scraper.PLAYER]
     filenames = FILENAMES[Scraper.PLAYER]
     payload = PAYLOADS[Scraper.PLAYER]
 
     player_data = {}
-    for url in urls[Player(player_type)]:
+    for url in urls[player_type]:
         scrape_player(url, payload, season, player_data)
         
     if player_data:
