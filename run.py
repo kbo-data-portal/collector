@@ -80,8 +80,7 @@ def main():
     )
     player_parser.add_argument(
         "-p", "--player", 
-        type=str, choices=[Player.HITTER.value, Player.PITCHER.value, 
-                           Player.FIELDER.value, Player.RUNNER.value], 
+        type=str, choices=[player_type.value for player_type in Player], 
         help=textwrap.dedent("""\
             Specify the player type to scrape:
               'hitter'  - Batting statistics
