@@ -77,7 +77,7 @@ def scrape_player(url, payload, target_season, player_data):
             break
     session.close()
 
-def run(player_type, season, format="parquet"):
+def run(player_type, season=None, format="parquet"):
     """
     Scrapes data for the given player type (hitter or pitcher).
     """
@@ -93,7 +93,7 @@ def run(player_type, season, format="parquet"):
         scrape_player(url, payload, season, player_data)
         
     if player_data:
-        save_scraped_data(player_data, filenames[player_type], format)
+        save_scraped_data(player_data, filenames[player_type], season, format)
         return True
     
     return False

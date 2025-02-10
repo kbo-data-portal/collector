@@ -68,7 +68,7 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
         
         current_date += timedelta(days=1)
 
-def run(start_date, end_date, format="parquet"):
+def run(start_date, end_date, season=None, format="parquet"):
     """ 
     Scrapes schedule data for the given date range.
     """
@@ -82,7 +82,7 @@ def run(start_date, end_date, format="parquet"):
     scrape_schedule(url, payload, start_date, end_date, schedule_data)
 
     if schedule_data:
-        save_scraped_data(schedule_data, filename, format)
+        save_scraped_data(schedule_data, filename, season, format)
         return True
     
     return False

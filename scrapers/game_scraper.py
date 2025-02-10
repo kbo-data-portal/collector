@@ -165,7 +165,7 @@ def scrape_game_details(url, payload, game_data):
     game_data[HOME].append(convert_row_data(headers, rows[HOME] + data[1]))
     game_data[AWAY].append(convert_row_data(headers, rows[AWAY] + data[0]))
 
-def run(filename, format="parquet"):
+def run(filename, season=None, format="parquet"):
     """ 
     Scrapes detailed game data, including schedule and player statistics.
     """
@@ -191,19 +191,19 @@ def run(filename, format="parquet"):
     
     if game_data and player_data:
         game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
-        save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], format)
+        save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], season, format)
 
         player_data.setdefault(Player.HITTER, [])
         player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
         player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
         save_scraped_data(player_data[Player.HITTER], 
-                          filenames[Game.STAT][Player.HITTER], format)
+                          filenames[Game.STAT][Player.HITTER], season, format)
 
         player_data.setdefault(Player.PITCHER, [])
         player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
         player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
         save_scraped_data(player_data[Player.PITCHER], 
-                          filenames[Game.STAT][Player.PITCHER], format)
+                          filenames[Game.STAT][Player.PITCHER], season, format)
         return True
     
     return False

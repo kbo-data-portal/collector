@@ -104,7 +104,6 @@ logger.setLevel(logging.DEBUG)
 
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO) 
-stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 
 file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime("%Y-%m-%d_%H")}.log"))
 file_handler.setLevel(logging.DEBUG)

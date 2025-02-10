@@ -33,7 +33,7 @@ def read_scraped_data(filename):
         logger.error(f"Error reading file: {e}")
         return None
     
-def save_scraped_data(data, filename, format):
+def save_scraped_data(data, filename, season, format):
     """
     Save the scraped data to CSV and Parquet files with a specific filename prefix.
     """
@@ -50,7 +50,10 @@ def save_scraped_data(data, filename, format):
         df = pd.DataFrame(data)
         if "POS" in df:
             df["POS"] = df["POS"].astype(str)
-                
+
+        if season:
+            filename = f"{season}_{filename}"
+
         if format == 'parquet':
             file_path = os.path.join(OUTPUT_DIR, f"{filename}.parquet")
             df.to_parquet(file_path, engine="pyarrow", index=False)
