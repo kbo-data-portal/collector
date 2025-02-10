@@ -48,9 +48,8 @@ def save_scraped_data(data, filename, season, format):
             raise ValueError("Data must be a dictionary or a list.")
 
         df = pd.DataFrame(data)
-        if "POS" in df:
-            df["POS"] = df["POS"].astype(str)
-
+        for column in df.select_dtypes(exclude=['number', 'datetime']).columns:
+            df[column] = df[column].astype('string')
         if season:
             filename = f"{season}_{filename}"
 
