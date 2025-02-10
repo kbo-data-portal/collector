@@ -11,11 +11,11 @@ from scrapers import game_scraper, player_scraper, schedule_scraper, team_scrape
 
 def scrape_game_data_command(args):
     if args.path:
-        game_scraper.run(args.path, args.format)
+        game_scraper.run(args.path, format=args.format)
     else:
         if scrape_schedule_data_command(args):
             filename = f"{FILENAMES[Scraper.SCHEDULE]}.{args.format}"
-            game_scraper.run(filename, args.format)
+            game_scraper.run(filename, format=args.format)
 
 def scrape_player_data_command(args):
     if args.player:
