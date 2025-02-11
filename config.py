@@ -17,8 +17,8 @@ class Game(Enum):
 class Player(Enum):
     HITTER = "hitter"
     PITCHER = "pitcher"
-    #FIELDER = "fielder"
-    #RUNNER = "runner"
+    FIELDER = "fielder"
+    RUNNER = "runner"
 
 # Constants
 HOME = "home"
@@ -46,7 +46,13 @@ URLS = {
             "https://www.koreabaseball.com/Record/Player/PitcherBasic/Basic2.aspx?sort=GAME_CN",
             "https://www.koreabaseball.com/Record/Player/PitcherBasic/Detail1.aspx?sort=GAME_CN",
             "https://www.koreabaseball.com/Record/Player/PitcherBasic/Detail2.aspx?sort=GAME_CN"
-        ]
+        ],
+        Player.FIELDER: [
+            "https://www.koreabaseball.com/Record/Player/Defense/Basic.aspx?sort=GAME_CN"
+        ],
+        Player.RUNNER: [
+            "https://www.koreabaseball.com/Record/Player/Runner/Basic.aspx?sort=GAME_CN"
+        ],
     },
     Scraper.SCHEDULE: "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
 }
@@ -85,8 +91,8 @@ FILENAMES = {
     Scraper.PLAYER: {
         Player.HITTER: "batting_stats_player",
         Player.PITCHER: "pitching_stats_player",
-        #Player.FIELDER: "fielding_stats_player",
-        #Player.RUNNER: "running_stats_player"
+        Player.FIELDER: "fielding_stats_player",
+        Player.RUNNER: "running_stats_player"
     },
     Scraper.SCHEDULE: "game_schedules"
 }
