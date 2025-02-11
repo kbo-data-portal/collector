@@ -50,7 +50,7 @@ def scrape_player(url, payload, target_season, player_data):
     for season in range(start_season, 1981, -1):
         payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeason$ddlSeason"] = str(season)
         
-        for page in range(1, 9999):
+        for page in range(1, start_season):
             logger.info(f"Scraping page {page} for season {season}...")
             payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfPage"] = str(page)
             
@@ -61,7 +61,10 @@ def scrape_player(url, payload, target_season, player_data):
                     continue
                 
                 headers, rows = extract_data(soup, season)
-                if not rows:
+                if headers is None and rows is None:
+                    logger.warning(f"Data not found for page {page}, season {season}.")
+                    break
+                if headers and not rows:
                     logger.info(f"Reached the end of the pages for season {season}.")
                     break  
 
