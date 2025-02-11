@@ -22,6 +22,9 @@ def scrape_player_data_command(args):
         player_scraper.run(args.player, args.season, args.format)
     else:
         for player_type in Player:
+            if player_type == Player.FIELDER or player_type == Player.RUNNER:
+                if args.season < 2001:
+                    continue
             player_scraper.run(player_type.value, args.season, args.format)
 
 def scrape_schedule_data_command(args):
