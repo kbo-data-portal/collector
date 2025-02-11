@@ -97,9 +97,6 @@ def scrape_game_stats(url, payload, player_data):
     game_id = payload["gameId"]
     logger.info(f"Scraping game detail for {game_id}...")
 
-    player_data.setdefault(HOME, {Player.HITTER: [], Player.PITCHER: []})
-    player_data.setdefault(AWAY, {Player.HITTER: [], Player.PITCHER: []})
-
     try:
         json_data = parse_json_from_url(url, payload)
         if not json_data or int(json_data.get("code", 0)) != 100:
@@ -111,6 +108,9 @@ def scrape_game_stats(url, payload, player_data):
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON for player stats in game {game_id}: {e}")
         return
+
+    player_data.setdefault(HOME, {Player.HITTER: [], Player.PITCHER: []})
+    player_data.setdefault(AWAY, {Player.HITTER: [], Player.PITCHER: []})
     
     extract_hitter_stats(json_data, game_id, player_data)
     extract_pitcher_stats(json_data, game_id, player_data)
@@ -123,9 +123,6 @@ def scrape_game_details(url, payload, game_data):
 
     game_id = payload["gameId"]
     logger.info(f"Scraping game detail for {game_id}...")
-    
-    game_data.setdefault(HOME, [])
-    game_data.setdefault(AWAY, [])
 
     try:
         json_data = parse_json_from_url(url, payload)
@@ -138,6 +135,9 @@ def scrape_game_details(url, payload, game_data):
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON for game {game_id}: {e}")
         return
+    
+    game_data.setdefault(HOME, [])
+    game_data.setdefault(AWAY, [])
 
     innings = json_data.get("maxInning", 0)
 
