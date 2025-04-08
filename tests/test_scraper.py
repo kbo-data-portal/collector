@@ -15,29 +15,23 @@ def test_game(urls, payloads, columns):
     2. Game statistics: Verifies that both hitter and pitcher statistics contain the correct columns.
     """
     # Test game details scraping
-    test_data = {}
-    scrape_game_details(
+    test_data = scrape_game_details(
         url=urls[Scraper.GAME][Game.DETAIL], 
-        payload=payloads[Scraper.GAME], 
-        game_data=test_data
+        payload=payloads[Scraper.GAME]
     )
-    assert list(test_data[HOME][0].keys()) == columns[Scraper.GAME][Game.DETAIL]
+    assert list(test_data[0].keys()) == columns[Scraper.GAME][Game.DETAIL]
     
     # Test game statistics scraping
-    test_data = {}
-    scrape_game_stats(
+    test_hitter, test_pitcher = scrape_game_stats(
         url=urls[Scraper.GAME][Game.STAT], 
-        payload=payloads[Scraper.GAME], 
-        player_data=test_data
+        payload=payloads[Scraper.GAME]
     )
 
     # Check hitter statistics columns
-    test_hitter = test_data[HOME][Player.HITTER][0]
-    assert list(test_hitter.keys()) == columns[Scraper.GAME][Game.STAT][Player.HITTER]
+    assert list(test_hitter[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.HITTER]
 
     # Check pitcher statistics columns
-    test_pitcher = test_data[HOME][Player.PITCHER][0]
-    assert list(test_pitcher.keys()) == columns[Scraper.GAME][Game.STAT][Player.PITCHER]
+    assert list(test_pitcher[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.PITCHER]
 
 def test_player(urls, payloads, columns):
     """
@@ -52,7 +46,7 @@ def test_player(urls, payloads, columns):
     scrape_player(
         url=urls[Scraper.PLAYER][Player.HITTER][0], 
         payload=payloads[Scraper.PLAYER], 
-        target_season=2011, 
+        season=2011, 
         player_data=test_data
     )
 
@@ -64,7 +58,7 @@ def test_player(urls, payloads, columns):
     scrape_player(
         url=urls[Scraper.PLAYER][Player.PITCHER][0], 
         payload=payloads[Scraper.PLAYER], 
-        target_season=2011, 
+        season=2011, 
         player_data=test_data
     )
 
@@ -78,13 +72,11 @@ def test_schedule(urls, payloads, columns, date):
     This test ensures:
     1. The scraped schedule data matches the expected columns for the given date.
     """
-    test_data = []
-    scrape_schedule(
+    test_data = scrape_schedule(
         url=urls[Scraper.SCHEDULE], 
         payload=payloads[Scraper.SCHEDULE], 
         start_date=date, 
-        end_date=date, 
-        schedule_data=test_data
+        end_date=date
     )
     assert list(test_data[0].keys()) == columns[Scraper.SCHEDULE]
 

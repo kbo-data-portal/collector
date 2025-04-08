@@ -66,7 +66,8 @@ def columns():
             "OUT_CN", "B1_BAT_ORDER_NO", "B2_BAT_ORDER_NO", "B3_BAT_ORDER_NO", "T_P_ID", 
             "T_P_NM", "B_P_ID", "B_P_NM", "GAME_SC_ID", "GAME_SC_NM", "IE_ENTRY_CK", 
             "START_PIT_CK", "T_GROUP_SC", "T_RANK_NO", "B_GROUP_SC", "B_RANK_NO", 
-            "ROUND_SC", "DETAIL_SC", "GAME_NO", "LINEUP_CK", "VOD_CK", "KBOT_SE", "SCORE_CK"
+            "ROUND_SC", "DETAIL_SC", "GAME_NO", "LINEUP_CK", "VOD_CK", "KBOT_SE", "SCORE_CK",
+            "CHECK_SWING_CK"
         ]
     }
 
