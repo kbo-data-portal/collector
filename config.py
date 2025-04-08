@@ -26,7 +26,6 @@ AWAY = "away"
 
 # Directories and Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUT_DIR = os.path.join(BASE_DIR, "output", time.strftime("%Y-%m-%d"))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 
 # URL and Payload Configuration
@@ -80,30 +79,6 @@ PAYLOADS = {
     }
 }
 
-FILENAMES = {
-    Scraper.GAME: {
-        Game.DETAIL: "game_details",
-        Game.STAT: {
-            Player.HITTER: "batting_stats_game",
-            Player.PITCHER: "pitching_stats_game"
-        }
-    },
-    Scraper.PLAYER: {
-        Player.HITTER: "batting_stats_player",
-        Player.PITCHER: "pitching_stats_player",
-        Player.FIELDER: "fielding_stats_player",
-        Player.RUNNER: "running_stats_player"
-    },
-    Scraper.SCHEDULE: "game_schedules"
-}
-
-def create_directory(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-create_directory(OUTPUT_DIR)
-create_directory(LOG_DIR)
-
 # Logger Configuration
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -114,6 +89,9 @@ stream_handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime("%Y-%m-%d_%H")}.log"))
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)

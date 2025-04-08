@@ -4,50 +4,18 @@ import textwrap
 from datetime import datetime
 
 from config import logger
-from config import FILENAMES
 from config import Scraper, Player
 
 from scrapers import game_scraper, player_scraper, schedule_scraper, team_scraper
 
 def scrape_game_data_command(args):
-    if args.path:
-        game_scraper.run(args.path, format=args.format)
-    else:
-        if scrape_schedule_data_command(args):
-            filename = f"{FILENAMES[Scraper.SCHEDULE]}.{args.format}"
-            game_scraper.run(filename, format=args.format)
+    game_scraper.run(args.date, args.format)
 
 def scrape_player_data_command(args):
-    if args.player:
-        player_scraper.run(args.player, args.season, args.format)
-    else:
-        for player_type in Player:
-            if player_type == Player.FIELDER or player_type == Player.RUNNER:
-                if args.season < 2001:
-                    continue
-            player_scraper.run(player_type.value, args.season, args.format)
+    player_scraper.run(args.season, args.format)
 
 def scrape_schedule_data_command(args):
-    if args.full:
-        return schedule_scraper.run(
-            start_date=datetime.strptime("20010405", "%Y%m%d"), 
-            end_date=datetime.now(),
-            format=args.format
-        )
-    else:
-        if args.date:
-            try:
-                target_date = datetime.strptime(args.date, "%Y%m%d")
-            except ValueError:
-                logger.error("Invalid date format. Please use YYYYMMDD.")
-                exit(1)
-        else:
-            target_date = datetime.now()
-        return schedule_scraper.run(
-            start_date=target_date, 
-            end_date=target_date,
-            format=args.format
-        )
+    schedule_scraper.run(args.season, args.format)
 
 def scrape_team_data_command(args):
     team_scraper.run()
@@ -71,9 +39,7 @@ def main():
         help="KBO Game Data Scraper",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    game_parser.add_argument("-p", "--path", type=str, help="Path to the schedule file to be parsed.")
     game_parser.add_argument("-d", "--date", type=str, help="Specify a date (YYYYMMDD) to fetch data for that day.")
-    game_parser.add_argument("-f", "--full", action="store_true", help="Scrape all data from 2001-04-05 to today.")
     game_parser.set_defaults(func=scrape_game_data_command)
 
     # Player Parser
@@ -81,18 +47,6 @@ def main():
         help="KBO Player Data Scraper",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    player_parser.add_argument(
-        "-p", "--player", 
-        type=str, choices=[player_type.value for player_type in Player], 
-        help=textwrap.dedent("""\
-            Specify the player type to scrape:
-              'hitter'  - Batting statistics
-              'pitcher' - Pitching statistics
-              'fielder' - Fielding statistics
-              'runner'  - Base running statistics
-        """)
-    )
-    player_parser.add_argument("-a", "--all", action="store_true", help="Scrape data for all players.")
     player_parser.add_argument("-s", "--season", type=int, default=None, help="Specify the season year (e.g., 2024).")
     player_parser.set_defaults(func=scrape_player_data_command)
 
@@ -101,8 +55,7 @@ def main():
         help="KBO Schedule Data Scraper",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    schedule_parser.add_argument("-d", "--date", type=str, help="Specify a date (YYYYMMDD) to fetch data for that day.")
-    schedule_parser.add_argument("-f", "--full", action="store_true", help="Scrape all data from 2001-04-05 to today.")
+    schedule_parser.add_argument("-s", "--season", type=int, default=None, help="Specify the season year (e.g., 2024).")
     schedule_parser.set_defaults(func=scrape_schedule_data_command)
 
     # Team Parser

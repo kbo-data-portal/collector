@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 from config import logger
-from config import OUTPUT_DIR
+from config import BASE_DIR
 
 def read_scraped_data(filename):
     """
@@ -13,7 +13,7 @@ def read_scraped_data(filename):
 
         file_path = filename
         if not os.path.exists(file_path):
-            file_path = os.path.join(OUTPUT_DIR, filename)
+            file_path = os.path.join(BASE_DIR, "output", filename)
 
         if file_extension == ".parquet":
             df = pd.read_parquet(file_path)
@@ -33,14 +33,18 @@ def read_scraped_data(filename):
         logger.error(f"Error reading file: {e}")
         return None
     
-def save_scraped_data(data, filename, season, format):
+def save_scraped_data(data, data_type, filename, format="parquet"):
     """
-    Save the scraped data to CSV and Parquet files with a specific filename prefix.
+    Save the scraped data in the specified format with a specific filename prefix.
     """
     try:
         if not data:
             logger.warning("No data to save.")
             return
+        
+        output_dir = os.path.join(BASE_DIR, "output", data_type)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         
         if isinstance(data, dict):
             data = list(data.values()) 
@@ -50,16 +54,14 @@ def save_scraped_data(data, filename, season, format):
         df = pd.DataFrame(data)
         for column in df.select_dtypes(exclude=["number", "datetime"]).columns:
             df[column] = df[column].astype("string")
-        if season:
-            filename = f"{season}_{filename}"
 
         if format == "parquet":
-            file_path = os.path.join(OUTPUT_DIR, f"{filename}.parquet")
+            file_path = os.path.join(output_dir, f"{filename}.parquet")
             df.to_parquet(file_path, engine="pyarrow", index=False)
 
             logger.info(f"Successfully save Parquet file: {file_path}")
         elif format == "json":
-            file_path = os.path.join(OUTPUT_DIR, f"{filename}.json")
+            file_path = os.path.join(output_dir, f"{filename}.json")
             json_data = df.to_json(orient="records", indent=4, force_ascii=False)
 
             json_data = json_data.replace(r"\/", "/")
@@ -67,7 +69,7 @@ def save_scraped_data(data, filename, season, format):
                 f.write(json_data)
             logger.info(f"Successfully save JSON file: {file_path}")
         elif format == "csv":
-            file_path = os.path.join(OUTPUT_DIR, f"{filename}.csv")
+            file_path = os.path.join(output_dir, f"{filename}.csv")
             df.to_csv(file_path, index=False, encoding="utf-8") 
 
             logger.info(f"Successfully save CSV file: {file_path}")

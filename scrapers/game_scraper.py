@@ -1,17 +1,20 @@
 import json
+from datetime import datetime
 from requests.exceptions import RequestException
 
 from config import logger
-from config import URLS, PAYLOADS, FILENAMES, HOME, AWAY
+from config import URLS, PAYLOADS, HOME, AWAY
 from config import Scraper, Game, Player
+
+from scrapers.schedule_scraper import scrape_schedule
 
 from utils.convert import convert_row_data
 from utils.request import parse_json_from_url
-from utils.storage import read_scraped_data, save_scraped_data
+from utils.storage import save_scraped_data
 
 def extract_data(tables):
     """
-    Extracts and combines statistics from multiple tables.
+    Extracts and merges data from multiple nested table structures.
     """
     combined_data = []
     
@@ -31,7 +34,7 @@ def extract_data(tables):
 
 def extract_hitter_stats(data, game_id, player_data):
     """
-    Extracts hitter statistics for a specific Korean baseball game.
+    Extracts hitter statistics from a game and appends them to the player_data dictionary.
     """
     innings = data.get("realMaxInning", 0)
 
@@ -65,7 +68,7 @@ def extract_hitter_stats(data, game_id, player_data):
 
 def extract_pitcher_stats(data, game_id, player_data):
     """
-    Extracts pitcher statistics for a specific Korean baseball game.
+    Extracts pitcher statistics from a game and appends them to the player_data dictionary.
     """
     headers = ["G_ID", "H/A", "선수명", "등판", "결과", "승", "패", "세", 
                "이닝", "타자", "투구수", "타수", "피안타", "홈런", "4사구", 
@@ -87,12 +90,13 @@ def extract_pitcher_stats(data, game_id, player_data):
          for player in away]
     )
 
-def scrape_game_stats(url, payload, player_data):
+def scrape_game_stats(url, payload):
     """
-    Scrapes hitter and pitcher statistics for a specific Korean baseball game.
-    Extracts both home and away team data.
+    Scrapes the hitter and pitcher statistics for a specific game.
     """
     logger.info(f"Scraping data from: {url}")
+
+    player_data = {}
 
     game_id = payload["gameId"]
     logger.info(f"Scraping game detail for {game_id}...")
@@ -115,9 +119,14 @@ def scrape_game_stats(url, payload, player_data):
     extract_hitter_stats(json_data, game_id, player_data)
     extract_pitcher_stats(json_data, game_id, player_data)
 
-def scrape_game_details(url, payload, game_data):
+    hitter_data = player_data[HOME][Player.HITTER] + player_data[AWAY][Player.HITTER]
+    pitcher_data = player_data[HOME][Player.PITCHER] + player_data[AWAY][Player.PITCHER]
+
+    return hitter_data, pitcher_data
+
+def scrape_game_details(url, payload):
     """
-    Scrapes Korean baseball game detail for the specified game.
+    Scrapes summary data (runs, hits, errors, innings) for a specific game.
     """
     logger.info(f"Scraping data from: {url}")
 
@@ -135,9 +144,6 @@ def scrape_game_details(url, payload, game_data):
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON for game {game_id}: {e}")
         return
-    
-    game_data.setdefault(HOME, [])
-    game_data.setdefault(AWAY, [])
 
     innings = json_data.get("maxInning", 0)
 
@@ -161,49 +167,70 @@ def scrape_game_details(url, payload, game_data):
         return
 
     headers += ["W/L", "W/L/T"] + [f"INN_{inn}" for inn in range(1, innings + 1)] + ["R", "H", "E", "B"]
+    home_data = convert_row_data(headers, rows[HOME] + data[1])
+    away_data = convert_row_data(headers, rows[AWAY] + data[0])
 
-    game_data[HOME].append(convert_row_data(headers, rows[HOME] + data[1]))
-    game_data[AWAY].append(convert_row_data(headers, rows[AWAY] + data[0]))
+    return [home_data, away_data]
 
-def run(filename, season=None, format="parquet"):
-    """ 
-    Scrapes detailed game data, including schedule and player statistics.
+def run(date, format="parquet"):
     """
-    schedule_data = read_scraped_data(filename)
+    Runs the data scraping pipeline for KBO game details and player statistics.
+    """
+    logger.info("Starting to scrape Korean baseball game data...")
+
+    start_date=datetime(2001, 4, 5)
+    end_date = datetime.now()
+    if date:
+        start_date = datetime.strptime(date, "%Y%m%d")
+        end_date = datetime.strptime(date, "%Y%m%d")
+
+    url = URLS[Scraper.SCHEDULE]
+    payload = PAYLOADS[Scraper.SCHEDULE]
+
+    schedule_data = scrape_schedule(url, payload, start_date, end_date)
+    if not schedule_data:
+        logger.warning("No schedule data found for the specified date range.")
+        return False
 
     urls = URLS[Scraper.GAME]
-    filenames = FILENAMES[Scraper.GAME]
     payload = PAYLOADS[Scraper.GAME]
 
-    game_data, player_data = {}, {}
+    game_data = {}
     for schedule in schedule_data:
-        if not "G_ID" in schedule:
-            logger.error(f"Invalid date format. Please check the {filename}")
-            exit(1)
-        payload["srId"] = str(schedule["SR_ID"]),
-        payload["seasonId"] = str(schedule["SEASON_ID"])
-        payload["gameId"] = str(schedule["G_ID"])
+        game_id = schedule.get("G_ID")
+        game_date = str(schedule.get("G_DT"))
+
+        if not game_id:
+            logger.warning("No game ID found in schedule data. Skipping...")
+            continue
+
+        game_data.setdefault(game_date, {
+            Scraper.GAME: [],
+            Player.HITTER: [],
+            Player.PITCHER: []
+        })
+
+        payload["srId"] = str(schedule.get("SR_ID")),
+        payload["seasonId"] = str(schedule.get("SEASON_ID"))
+        payload["gameId"] = str(game_id)
         
-        logger.info(f"Starting to scrape Korean baseball schedule data from {payload["gameId"]}...")
+        logger.info(f"Scraping game data for ID {payload['gameId']}...")
 
-        scrape_game_details(urls[Game.DETAIL], payload, game_data)
-        scrape_game_stats(urls[Game.STAT], payload, player_data)
-    
-    if game_data and player_data:
-        game_data[Game.DETAIL] = game_data[HOME] + game_data[AWAY]
-        save_scraped_data(game_data[Game.DETAIL], filenames[Game.DETAIL], season, format)
+        summary_data = scrape_game_details(urls[Game.DETAIL], payload)
+        hitter_data, pitcher_data = scrape_game_stats(urls[Game.STAT], payload)
 
-        player_data.setdefault(Player.HITTER, [])
-        player_data[Player.HITTER].extend(player_data[HOME][Player.HITTER])
-        player_data[Player.HITTER].extend(player_data[AWAY][Player.HITTER])
-        save_scraped_data(player_data[Player.HITTER], 
-                          filenames[Game.STAT][Player.HITTER], season, format)
+        if summary_data and hitter_data and pitcher_data:
+            game_data[game_date][Scraper.GAME].extend(summary_data)
+            game_data[game_date][Player.HITTER].extend(hitter_data)
+            game_data[game_date][Player.PITCHER].extend(pitcher_data)
+        else:
+            logger.warning(f"No data found for game {schedule["G_ID"]}. Skipping...")
+            return False
 
-        player_data.setdefault(Player.PITCHER, [])
-        player_data[Player.PITCHER].extend(player_data[HOME][Player.PITCHER])
-        player_data[Player.PITCHER].extend(player_data[AWAY][Player.PITCHER])
-        save_scraped_data(player_data[Player.PITCHER], 
-                          filenames[Game.STAT][Player.PITCHER], season, format)
-        return True
-    
-    return False
+    for target_date, target_data in game_data.items():
+        data_type = f"game/{target_date[:4]}/{target_date}"
+        save_scraped_data(target_data[Scraper.GAME], data_type, "summary", format)
+        save_scraped_data(target_data[Player.HITTER], data_type, "hitters", format)
+        save_scraped_data(target_data[Player.PITCHER], data_type, "pitchers", format)
+
+    return True

@@ -1,7 +1,7 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from config import logger
-from config import URLS, FILENAMES, PAYLOADS
+from config import URLS, PAYLOADS
 from config import Scraper
 
 from utils.convert import convert_row_data
@@ -35,15 +35,16 @@ def extract_data(json):
         logger.error(f"Unexpected error while extracting data: {e}")
         return None, None
     
-def scrape_schedule(url, payload, start_date, end_date, schedule_data):
+def scrape_schedule(url, payload, start_date, end_date):
     """
-    Scrapes Korean baseball game data for the specified date range.
+    Scrapes KBO schedule data for the given date range.
     """
     logger.info(f"Scraping data from: {url}")
 
-    current_date = start_date.replace()
-    while current_date <= end_date:
-        date_str = current_date.strftime("%Y%m%d")
+    schedule_data = []
+
+    while start_date <= end_date:
+        date_str = start_date.strftime("%Y%m%d")
         
         logger.info(f"Scraping data for {date_str}...")
         payload["date"] = date_str
@@ -52,13 +53,13 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
             json_data = parse_json_from_url(url, payload)
             if not json_data or int(json_data.get("code", 0)) != 100:
                 logger.warning(f"No valid data found for {date_str}. Skipping...")
-                current_date += timedelta(days=1)
+                start_date += timedelta(days=1)
                 continue
             
             headers, rows = extract_data(json_data)
             if not rows:
                 logger.info(f"Reached the end of data for {date_str}.")
-                current_date += timedelta(days=1)
+                start_date += timedelta(days=1)
                 continue  
 
             for row in rows:
@@ -66,23 +67,36 @@ def scrape_schedule(url, payload, start_date, end_date, schedule_data):
         except Exception as e:
             logger.error(f"Error occurred while scraping data for {date_str}: {e}")
         
-        current_date += timedelta(days=1)
+        start_date += timedelta(days=1)
 
-def run(start_date, end_date, season=None, format="parquet"):
-    """ 
-    Scrapes schedule data for the given date range.
+    return schedule_data
+
+def run(season, format="parquet"):
     """
-    logger.info(f"Starting to scrape Korean baseball schedule data from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}...")
+    Runs the schedule scraper for the given season(s).
+    """
+    logger.info("Starting to scrape Korean baseball schedule data...")
     
     url = URLS[Scraper.SCHEDULE]
-    filename = FILENAMES[Scraper.SCHEDULE]
     payload = PAYLOADS[Scraper.SCHEDULE]
 
-    schedule_data = []
-    scrape_schedule(url, payload, start_date, end_date, schedule_data)
-
-    if schedule_data:
-        save_scraped_data(schedule_data, filename, season, format)
-        return True
+    start_season = 2001
+    end_season = datetime.now().year
+    if season:
+        start_season = season
+        end_season = season
     
-    return False
+    for target_season in range(start_season, end_season + 1):
+        logger.info(f"Scraping schedule data for season {target_season}...")
+        
+        start_date = datetime(target_season, 1, 1)
+        end_date = datetime(target_season, 12, 31)
+
+        schedule_data = scrape_schedule(url, payload, start_date, end_date)
+        if schedule_data:
+            save_scraped_data(schedule_data, "schedule", f"{target_season}", format)
+        else:
+            logger.warning(f"No schedule data found for season {target_season}.")
+            return False
+    
+    return True
