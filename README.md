@@ -41,31 +41,31 @@ python run.py game --date <target_date>
 
 ---
 
-#### `player`: Scrapes KBO player data
+### `player`: Scrapes KBO player data
 
 This command allows you to scrape data for different types of players, including batters, pitchers, fielders, and base runners.
 ```bash
 python run.py player --season <target_season>
 ```
 
-##### Options:
+#### Options:
 - `-s, --season`: Specify the season year (e.g., `2011`) to scrape data for that year.
 
 ---
 
-#### `schedule`: Scrapes KBO schedule data
+### `schedule`: Scrapes KBO schedule data
 
 This command scrapes the schedule data for KBO games. You can fetch data for a specific season or scrape all data from the start of the KBO season in 2001 to today.
 ```bash
 python run.py schedule --season <target_season>
 ```
 
-##### Options:
+#### Options:
 - `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
 
 ---
 
-#### `team`: Scrapes KBO team data
+### `team`: Scrapes KBO team data
 
 This command scrapes data related to KBO teams.
 ```bash
