@@ -83,15 +83,15 @@ PAYLOADS = {
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO) 
 
 file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime("%Y-%m-%d_%H")}.log"))
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
 
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
