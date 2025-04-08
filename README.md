@@ -37,11 +37,7 @@ python run.py game --date <target_date>
 ```
 
 #### Options:
-- `-p, --path`: Path to the schedule file to be parsed.
 - `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
-- `-f, --full`: Scrape all available data from April 5, 2001, to today.
-
-> **Note**: Since the `game` command internally fetches the schedule data, the options `-d` and `-f` are the same as those for the `schedule` command and will also apply when scraping game data.
 
 ---
 
@@ -49,30 +45,23 @@ python run.py game --date <target_date>
 
 This command allows you to scrape data for different types of players, including batters, pitchers, fielders, and base runners.
 ```bash
-python run.py player --player <player_type> --season <target_season>
+python run.py player --season <target_season>
 ```
 
 ##### Options:
-- `-p, --player`: Specify the type of player data to scrape. Valid options are:
-  - `hitter` for batting statistics
-  - `pitcher` for pitching statistics
-  - `fielder` for fielding statistics
-  - `runner` for base running statistics
-- `-a, --all`: Scrape data for all players.
-- `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
+- `-s, --season`: Specify the season year (e.g., `2011`) to scrape data for that year.
 
 ---
 
 #### `schedule`: Scrapes KBO schedule data
 
-This command scrapes the schedule data for KBO games. You can fetch data for a specific date or scrape all data from the start of the KBO season in 2001 to today.
+This command scrapes the schedule data for KBO games. You can fetch data for a specific season or scrape all data from the start of the KBO season in 2001 to today.
 ```bash
-python run.py schedule --date <target_date>
+python run.py schedule --season <target_season>
 ```
 
 ##### Options:
-- `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
-- `-f, --full`: Scrape all available data from April 5, 2001, to today.
+- `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
 
 ---
 
@@ -91,34 +80,23 @@ For more detailed information on any command, you can use the `--help` flag:
 python run.py <command> --help
 ```
 
-## Functions
-
-Each command is mapped to a corresponding function in the code:
-
-- `scrape_game_data_command`: Handles scraping of game data.
-- `scrape_player_data_command`: Handles scraping of player data.
-- `scrape_schedule_data_command`: Handles scraping of schedule data.
-- `scrape_team_data_command`: Handles scraping of team data.
-
-These functions take care of the web scraping and data processing based on the command-line arguments passed.
-
 ---
 
 ## Example Commands
 
 1. **Scrape Game Data:**
     ```bash
-    python run.py game --date 20240205
+    python run.py game --date 20111031
     ```
 
-2. **Scrape Player Data for Batters in 2024 Season:**
+2. **Scrape Player Data for a 2011 Season:**
     ```bash
-    python run.py player --player hitter --season 2024
+    python run.py player --season 2011
     ```
 
-3. **Scrape KBO Schedule Data for a Specific Date:**
+3. **Scrape KBO Schedule Data for a 2011 Season:**
     ```bash
-    python run.py schedule --date 20240205
+    python run.py schedule --season 2011
     ```
 
 ## License  
