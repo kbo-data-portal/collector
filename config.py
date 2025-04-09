@@ -3,6 +3,7 @@ import logging
 import time
 from enum import Enum
 
+
 # Enum Definitions
 class Scraper(Enum):
     GAME = "game"
@@ -19,6 +20,7 @@ class Player(Enum):
     PITCHER = "pitcher"
     FIELDER = "fielder"
     RUNNER = "runner"
+
 
 # Constants
 HOME = "home"
@@ -59,9 +61,9 @@ URLS = {
 PAYLOADS = {
     Scraper.GAME: {
         "leId": "1",
-        "srId": None,
-        "seasonId": None,
-        "gameId": None
+        "srId": "0",  # Default to empty string or 0 instead of None
+        "seasonId": "0",
+        "gameId": "0"
     },
     Scraper.PLAYER: {
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$smData": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$udpContent|ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
@@ -69,13 +71,13 @@ PAYLOADS = {
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderByCol": "GAME_CN",
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderBy": "DESC",
         "__EVENTTARGET": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
-        "__VIEWSTATE": None,
-        "__EVENTVALIDATION": None
+        "__VIEWSTATE": "",  # Handle as empty string or default value
+        "__EVENTVALIDATION": ""
     },
     Scraper.SCHEDULE: {
         "leId": "1",
         "srId": "0,1,3,4,5,6,7,8,9",
-        "date": None
+        "date": ""  # Default empty date
     }
 }
 
@@ -87,9 +89,9 @@ if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO) 
+stream_handler.setLevel(logging.DEBUG)  # Changed to DEBUG for more detailed logging
 
-file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime("%Y-%m-%d_%H")}.log"))
+file_handler = logging.FileHandler(os.path.join(LOG_DIR, f"{time.strftime('%Y-%m-%d_%H')}.log"))
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 

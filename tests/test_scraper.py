@@ -1,12 +1,13 @@
 from config import HOME
 from config import Scraper, Game, Player
 
-from scrapers.game_scraper import scrape_game_details, scrape_game_stats
-from scrapers.player_scraper import scrape_player
-from scrapers.schedule_scraper import scrape_schedule
-from scrapers.team_scraper import scrape_team
+from scrapers.game import scrape_game_summary, scrape_player_statistics
+from scrapers.player import scrape_player_data
+from scrapers.schedule import scrape_schedule_data
+from scrapers.team import scrape_team
 
-def test_game(urls, payloads, columns):
+
+def test_game(urls, payloads, columns, test_date):
     """
     Test the game scraping functions by verifying the extracted column headers.
     
@@ -15,25 +16,26 @@ def test_game(urls, payloads, columns):
     2. Game statistics: Verifies that both hitter and pitcher statistics contain the correct columns.
     """
     # Test game details scraping
-    test_data = scrape_game_details(
+    game_details = scrape_game_summary(
         url=urls[Scraper.GAME][Game.DETAIL], 
         payload=payloads[Scraper.GAME]
     )
-    assert list(test_data[0].keys()) == columns[Scraper.GAME][Game.DETAIL]
+    assert list(game_details[0].keys()) == columns[Scraper.GAME][Game.DETAIL]
     
     # Test game statistics scraping
-    test_hitter, test_pitcher = scrape_game_stats(
+    hitter_columns, pitcher_columns = scrape_player_statistics(
         url=urls[Scraper.GAME][Game.STAT], 
         payload=payloads[Scraper.GAME]
     )
 
     # Check hitter statistics columns
-    assert list(test_hitter[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.HITTER]
+    assert list(hitter_columns[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.HITTER]
 
     # Check pitcher statistics columns
-    assert list(test_pitcher[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.PITCHER]
+    assert list(pitcher_columns[0].keys()) == columns[Scraper.GAME][Game.STAT][Player.PITCHER]
 
-def test_player(urls, payloads, columns):
+
+def test_player(urls, payloads, columns, test_date):
     """
     Test the player scraping functions by verifying the extracted column headers for both hitters and pitchers.
     
@@ -42,43 +44,45 @@ def test_player(urls, payloads, columns):
     2. Pitcher statistics: Verifies that the player data for pitchers also contains the correct columns.
     """
     # Test hitter data scraping
-    test_data = {}
-    scrape_player(
+    hitter_data = {}
+    scrape_player_data(
         url=urls[Scraper.PLAYER][Player.HITTER][0], 
         payload=payloads[Scraper.PLAYER], 
-        season=2011, 
-        player_data=test_data
+        season=test_date.year, 
+        player_datas=hitter_data
     )
 
-    test_hitter = list(test_data.values())[0]
-    assert list(test_hitter.keys()) == columns[Scraper.PLAYER][Player.HITTER]
+    hitter_columns = list(hitter_data.values())[0]
+    assert list(hitter_columns.keys()) == columns[Scraper.PLAYER][Player.HITTER]
 
     # Test pitcher data scraping
-    test_data = {}
-    scrape_player(
+    pitcher_data = {}
+    scrape_player_data(
         url=urls[Scraper.PLAYER][Player.PITCHER][0], 
         payload=payloads[Scraper.PLAYER], 
-        season=2011, 
-        player_data=test_data
+        season=test_date.year, 
+        player_datas=pitcher_data
     )
 
-    test_pitcher = list(test_data.values())[0]
-    assert list(test_pitcher.keys()) == columns[Scraper.PLAYER][Player.PITCHER]
+    pitcher_columns = list(pitcher_data.values())[0]
+    assert list(pitcher_columns.keys()) == columns[Scraper.PLAYER][Player.PITCHER]
 
-def test_schedule(urls, payloads, columns, date):
+
+def test_schedule(urls, payloads, columns, test_date):
     """
     Test the schedule scraping function by verifying the extracted column headers for the schedule data.
     
     This test ensures:
     1. The scraped schedule data matches the expected columns for the given date.
     """
-    test_data = scrape_schedule(
+    schedule_data = scrape_schedule_data(
         url=urls[Scraper.SCHEDULE], 
         payload=payloads[Scraper.SCHEDULE], 
-        start_date=date, 
-        end_date=date
+        start_date=test_date, 
+        end_date=test_date
     )
-    assert list(test_data[0].keys()) == columns[Scraper.SCHEDULE]
+    assert list(schedule_data[0].keys()) == columns[Scraper.SCHEDULE]
+
 
 def test_team():
     assert True

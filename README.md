@@ -4,100 +4,90 @@
 This repository is dedicated to collecting and scraping KBO (Korea Baseball Organization) data. It includes scripts and processes for gathering player statistics, team data, game results, and other related information.
 
 ## Installation
-- Python 3.12+
+### Requirements
+- Python 3.12+ is required.
 
-1. **Clone the repository**:
+### Steps to Install
+1. **Clone the repository**
     ```bash
     git clone https://github.com/leewr9/kbo-data-collector.git
     cd kbo-data-collector
     ```
 
-2. **Install dependencies**:
+2. **Install dependencies**
     ```bash
     pip install -r requirements.txt
     ```
-    
+
 ## Usage
+This project provides a tool for scraping KBO data in various formats. You can specify the target data and output format using commands.
 
-### Main Command
-
-The tool can be run via the command line and offers four main commands: `game`, `player`, `schedule`, and `team`.
+### Command Syntax
 ```bash
 python run.py <command> [options]
 ```
+Where `<command>` is one of the available commands, and `[options]` are the command-specific options.
+If no `<command>` is specified, it will collect data for the entire season.
 
-### Commands
-
-### `game`: Scrapes KBO game data
-
-This command scrapes data related to specific KBO games. It will internally fetch schedule data as well.
-
+### Example
+Scrape all data for the 2011 season in Parquet format
 ```bash
-python run.py game --date <target_date>
+python run.py -s 2011 -f parquet
 ```
 
-#### Options:
-- `-d, --date`: Specify a date (in `YYYYMMDD` format) to fetch data for that day.
+### Available Commands
 
----
+#### `game`
+Used to scrape game-related data.
 
-### `player`: Scrapes KBO player data
+##### Options
+- `-s, --season`: Specify the season for which to collect game data (e.g., `2011`).
+- `-d, --date`: Specify a specific date (in `YYYYMMDD` format) to scrape data for.
+- `-f, --format`: Specify the output format. Supported formats are `parquet`, `json`, and `csv`.
 
-This command allows you to scrape data for different types of players, including batters, pitchers, fielders, and base runners.
+##### Example
+Scrape game data for the 2011 season in CSV format
 ```bash
-python run.py player --season <target_season>
+python run.py game -s 2011 -f csv
 ```
 
-#### Options:
-- `-s, --season`: Specify the season year (e.g., `2011`) to scrape data for that year.
-
----
-
-### `schedule`: Scrapes KBO schedule data
-
-This command scrapes the schedule data for KBO games. You can fetch data for a specific season or scrape all data from the start of the KBO season in 2001 to today.
+Scrape game data for a specific date (2011-10-31) in JSON format
 ```bash
-python run.py schedule --season <target_season>
+python run.py game -d 20111031 -f json
 ```
 
-#### Options:
-- `-s, --season`: Specify the season year (e.g., `2024`) to scrape data for that year.
+#### `schedule`
+Used to scrape the schedule of games for a season.
 
----
+##### Options
+- `-s, --season`: Specify the season for which to collect schedule data.
+- `-f, --format`: Specify the output format. Supported formats are `parquet`, `json`, and `csv`.
 
-### `team`: Scrapes KBO team data
-
-This command scrapes data related to KBO teams.
+##### Example
+Scrape schedule data for the 2011 season in Parquet format
 ```bash
-python run.py team
+python run.py schedule -s 2011 -f parquet
+```
+
+#### `player`
+Used to scrape player statistics data.
+
+##### Options
+- `-s, --season`: Specify the season for which to collect player data.
+- `-f, --format`: Specify the output format. Supported formats are `parquet`, `json`, and cs`v.
+
+##### Example
+Scrape player data for the 2011 season in CSV format
+```bash
+python run.py player -s 2011 -f csv
 ```
 
 ### Help
-
-For more detailed information on any command, you can use the `--help` flag:
+To get more detailed information about any command, you can use the `--help` flag. This will display the available options and arguments for that specific command.
 
 ```bash
 python run.py <command> --help
 ```
-
----
-
-## Example Commands
-
-1. **Scrape Game Data:**
-    ```bash
-    python run.py game --date 20111031
-    ```
-
-2. **Scrape Player Data for a 2011 Season:**
-    ```bash
-    python run.py player --season 2011
-    ```
-
-3. **Scrape KBO Schedule Data for a 2011 Season:**
-    ```bash
-    python run.py schedule --season 2011
-    ```
 
 ## License  
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  

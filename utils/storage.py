@@ -4,77 +4,100 @@ import pandas as pd
 from config import logger
 from config import BASE_DIR
 
-def read_scraped_data(filename):
+
+def load_scraped_data(file_name: str) -> list[dict] | None:
     """
-    Read data from a CSV or Parquet file and return it as a list of dictionaries.
+    Loads scraped data from a file (CSV, JSON, or Parquet) and returns it as a list of dictionaries.
+
+    Args:
+        file_name (str): Name or relative path of the file to load.
+
+    Returns:
+        list[dict] | None: List of records from the file as dictionaries, or None if an error occurs.
     """
     try:
-        file_extension = os.path.splitext(filename)[1].lower()
+        ext = os.path.splitext(file_name)[1].lower()
+        file_path = file_name
 
-        file_path = filename
         if not os.path.exists(file_path):
-            file_path = os.path.join(BASE_DIR, "output", filename)
+            file_path = os.path.join(BASE_DIR, "output", file_name)
 
-        if file_extension == ".parquet":
+        if ext == ".parquet":
             df = pd.read_parquet(file_path)
-            logger.info(f"Successfully read Parquet file: {file_path}")
-        elif file_extension == ".json":
+            logger.info(f"Loaded Parquet file: {file_path}")
+        elif ext == ".json":
             df = pd.read_json(file_path)
-            logger.info(f"Successfully read JSON file: {file_path}")
-        elif file_extension == ".csv":
+            logger.info(f"Loaded JSON file: {file_path}")
+        elif ext == ".csv":
             df = pd.read_csv(file_path)
-            logger.info(f"Successfully read CSV file: {file_path}")
+            logger.info(f"Loaded CSV file: {file_path}")
         else:
-            logger.info(f"Unsupported file format: {file_extension}")
+            logger.warning(f"Unsupported file extension: {ext}")
             return None
-        
+
         return df.to_dict(orient="records")
+
     except Exception as e:
-        logger.error(f"Error reading file: {e}")
+        logger.error(f"Failed to load file: {e}")
         return None
-    
-def save_scraped_data(data, data_type, filename, format="parquet"):
+
+
+def save_scraped_data(
+    data: list[dict] | dict,
+    data_type: str,
+    file_name: str,
+    format: str = "parquet"
+) -> None:
     """
-    Save the scraped data in the specified format with a specific filename prefix.
+    Saves scraped data to a file in the specified format (Parquet, JSON, or CSV).
+
+    Args:
+        data (list[dict] | dict): The scraped data to save.
+        data_type (str): Type/category of the data (used to determine subdirectory).
+        file_name (str): The base filename (without extension).
+        format (str, optional): File format to save in ('parquet', 'json', or 'csv'). Defaults to 'parquet'.
+
+    Returns:
+        None
     """
     try:
         if not data:
             logger.warning("No data to save.")
             return
-        
+
         output_dir = os.path.join(BASE_DIR, "output", data_type)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
+        os.makedirs(output_dir, exist_ok=True)
+
+        output_path = os.path.join(output_dir, f"{file_name}.{format}")
+
         if isinstance(data, dict):
-            data = list(data.values()) 
+            data = list(data.values())
         elif not isinstance(data, list):
-            raise ValueError("Data must be a dictionary or a list.")
+            raise ValueError("Data must be a dictionary or a list of dictionaries.")
 
         df = pd.DataFrame(data)
+
+        # Convert all non-numeric/non-datetime columns to string type
         for column in df.select_dtypes(exclude=["number", "datetime"]).columns:
             df[column] = df[column].astype("string")
 
         if format == "parquet":
-            file_path = os.path.join(output_dir, f"{filename}.parquet")
-            df.to_parquet(file_path, engine="pyarrow", index=False)
+            df.to_parquet(output_path, engine="pyarrow", index=False)
+            logger.info(f"Saved Parquet file: {output_path}")
 
-            logger.info(f"Successfully save Parquet file: {file_path}")
         elif format == "json":
-            file_path = os.path.join(output_dir, f"{filename}.json")
             json_data = df.to_json(orient="records", indent=4, force_ascii=False)
-
             json_data = json_data.replace(r"\/", "/")
-            with open(file_path, "w", encoding="utf-8") as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(json_data)
-            logger.info(f"Successfully save JSON file: {file_path}")
-        elif format == "csv":
-            file_path = os.path.join(output_dir, f"{filename}.csv")
-            df.to_csv(file_path, index=False, encoding="utf-8") 
+            logger.info(f"Saved JSON file: {output_path}")
 
-            logger.info(f"Successfully save CSV file: {file_path}")
+        elif format == "csv":
+            df.to_csv(output_path, index=False, encoding="utf-8")
+            logger.info(f"Saved CSV file: {output_path}")
+
         else:
             logger.warning(f"Unsupported file format: {format}")
-    
+
     except Exception as e:
-        logger.error(f"Error saving data: {e}")
+        logger.error(f"Failed to save file: {e}")

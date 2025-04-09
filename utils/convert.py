@@ -1,10 +1,18 @@
-def convert_column_name(column_str):
+def convert_column_name(column_name: str) -> str | None:
     """
-    Convert column names to a standardized format.
+    Converts a Korean column name to a standardized English column key.
+
+    Args:
+        column_name (str): The original column name.
+
+    Returns:
+        str | None: The converted column name in English format,
+                    or None if the column should be skipped.
     """
-    if column_str == "순위":
+    if column_name == "순위":
         return None
-    column_map = {
+
+    column_mapping: dict[str, str] = {
         "선수명": "P_NM",
         "팀명": "TEAM_NM",
         "타수": "AB",
@@ -28,52 +36,73 @@ def convert_column_name(column_str):
         "자책": "ER",
         "평균자책점": "ERA",
     }
-    return column_map.get(column_str, column_str.replace("/", "_").upper())
 
-def convert_to_data(fraction_str):
+    return column_mapping.get(column_name, column_name.replace("/", "_").upper())
+
+
+def convert_to_data(value) -> float | int | str | None:
     """
-    Convert a fraction string to a decimal number. If the input is not in fraction format, 
-    convert it to float or string as needed.
+    Converts a string (including fractions or formatted numbers) into float or int if possible.
+
+    Args:
+        value (str | any): The value to convert, typically a string from HTML.
+
+    Returns:
+        float | int | str | None: The converted number, or the original value on failure.
     """
-    if not isinstance(fraction_str, str):  
-        return fraction_str
+    if not isinstance(value, str):
+        return value
 
-    fraction_str = fraction_str.strip()
+    value = value.strip()
 
-    if fraction_str == "-" or fraction_str == "&nbsp;":
+    if value in {"-", "&nbsp;"}:
         return None
 
     try:
-        if ' ' in fraction_str and '/' in fraction_str:
-            whole, fraction = fraction_str.split(' ')
-            numerator, denominator = map(int, fraction.split('/'))
-            decimal_value = int(whole) + (numerator / denominator)
-            return round(decimal_value, 2)
+        # Case: mixed number like '1 1/3'
+        if " " in value and "/" in value:
+            whole, fraction = value.split(" ")
+            numerator, denominator = map(int, fraction.split("/"))
+            return round(int(whole) + (numerator / denominator), 2)
 
-        if '/' in fraction_str:
-            numerator, denominator = map(int, fraction_str.split('/'))
+        # Case: simple fraction like '2/3'
+        if "/" in value:
+            numerator, denominator = map(int, value.split("/"))
             return round(numerator / denominator, 2)
 
-        if ',' in fraction_str:
-            cleaned_number = fraction_str.replace(",", "")
-            if cleaned_number.isdigit():
-                return int(cleaned_number)
-            
-        if fraction_str.isdigit():
-            return int(fraction_str)
-            
-        return float(fraction_str)
+        # Case: number with comma (e.g., "1,234")
+        if "," in value:
+            cleaned = value.replace(",", "")
+            if cleaned.isdigit():
+                return int(cleaned)
+
+        # Case: digit string (e.g., "123")
+        if value.isdigit():
+            return int(value)
+
+        # Default: try float conversion (e.g., "12.34")
+        return float(value)
 
     except ValueError:
-        return fraction_str
+        return value
 
-def convert_row_data(headers, values):
+
+def convert_row_data(headers: list[str], values: list[str]) -> dict[str, float | int | str | None]:
     """
-    Convert a list of headers and corresponding row values into a standardized dictionary.
+    Converts a row of raw HTML data into a dictionary with standardized keys and cleaned values.
+
+    Args:
+        headers (list[str]): List of Korean column names.
+        values (list[str]): List of string values corresponding to the headers.
+
+    Returns:
+        dict[str, float | int | str | None]: Dictionary with standardized keys and cleaned values.
     """
-    converted_data = {}
+    row_data = {}
+
     for header, value in zip(headers, values):
-        column_name = convert_column_name(header)
-        if column_name:
-            converted_data[column_name] = convert_to_data(value)
-    return converted_data
+        key = convert_column_name(header)
+        if key:
+            row_data[key] = convert_to_data(value)
+
+    return row_data

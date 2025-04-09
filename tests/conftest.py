@@ -72,5 +72,5 @@ def columns():
     }
 
 @pytest.fixture
-def date():
+def test_date():
     return datetime.strptime("20111031", "%Y%m%d")
