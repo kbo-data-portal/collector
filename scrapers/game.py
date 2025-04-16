@@ -143,15 +143,15 @@ def scrape_game_summary(url: str, payload: dict) -> list | None:
 
     innings = game_json.get("maxInning", 0)
 
-    summary_headers = []
-    raw_rows = {HOME: [], AWAY: []}
+    headers = []
+    rows = {HOME: [], AWAY: []}
     for key, value in game_json.items():
         if key == "maxInning":
             break
         if not key.startswith("table"):
-            summary_headers.append(key)
-            raw_rows[HOME].append(value)
-            raw_rows[AWAY].append(value)
+            headers.append(key)
+            rows[HOME].append(value)
+            rows[AWAY].append(value)
 
     try:
         table_rows = parse_player_stats([
@@ -163,12 +163,12 @@ def scrape_game_summary(url: str, payload: dict) -> list | None:
         logger.error(f"Failed to decode summary tables: {e}")
         return
 
-    full_headers = summary_headers + ["H/A", "W/L", "W/L/T"] + \
+    full_headers = headers + ["H/A", "W/L", "W/L/T"] + \
         [f"INN_{i}" for i in range(1, innings + 1)] + ["R", "H", "E", "B"]
     
     return [
-        convert_row_data(full_headers, raw_rows[HOME] + ["H"] + table_rows[1]),
-        convert_row_data(full_headers, raw_rows[AWAY] + ["A"] + table_rows[0])
+        convert_row_data(full_headers, rows[HOME] + ["H"] + table_rows[1]),
+        convert_row_data(full_headers, rows[AWAY] + ["A"] + table_rows[0])
     ]
 
 

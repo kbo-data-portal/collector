@@ -39,7 +39,7 @@ def scrape_schedule_data(
     start_date: datetime,
     end_date: datetime
 ) -> list[dict]:
-    """Fetches KBO schedule data from the given URL across a date range."""
+    """Scrapes schedule data from the given URL across a date range."""
     logger.info(f"Starting to fetch schedule data from: {url}")
     collected_schedules = []
 
@@ -56,14 +56,14 @@ def scrape_schedule_data(
                 start_date += timedelta(days=1)
                 continue
 
-            headers, row_data = parse_schedule_data(json_response)
-            if not row_data:
+            headers, rows = parse_schedule_data(json_response)
+            if not rows:
                 logger.info(f"No rows returned for {date_str}.")
                 start_date += timedelta(days=1)
                 continue
 
-            for row_values in row_data:
-                collected_schedules.append(convert_row_data(headers, row_values))
+            for row in rows:
+                collected_schedules.append(convert_row_data(headers, row))
         except Exception as e:
             logger.error(f"Error fetching schedule for {date_str}: {e}")
         finally:
