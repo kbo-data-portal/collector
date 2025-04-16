@@ -22,14 +22,14 @@ def payloads():
 def columns():
     return {
         Scraper.GAME: {
-            Game.DETAIL: [
+            Game.SUMMARY: [
                 "LE_ID", "SR_ID", "G_ID", "G_DT", "SEASON_ID", "HOME_NM", "HOME_ID", 
                 "AWAY_NM", "AWAY_ID", "S_NM", "CROWD_CN", "H_W_CN", "H_L_CN", "H_D_CN", 
                 "A_W_CN", "A_L_CN", "A_D_CN", "T_SCORE_CN", "B_SCORE_CN", "START_TM", 
                 "END_TM", "USE_TM", "FULL_HOME_NM", "FULL_AWAY_NM", "H_INITIAL_LK", 
-                "A_INITIAL_LK", "W_L", "W_L_T", "INN_1", "INN_2", "INN_3", "INN_4", 
-                "INN_5", "INN_6", "INN_7", "INN_8", "INN_9", "INN_10", "INN_11", 
-                "INN_12", "INN_13", "INN_14", "INN_15", "R", "H", "E", "B"
+                "A_INITIAL_LK", "H_A", "W_L", "W_L_T", "INN_1", "INN_2", "INN_3", 
+                "INN_4", "INN_5", "INN_6", "INN_7", "INN_8", "INN_9", "INN_10", 
+                "INN_11", "INN_12", "INN_13", "INN_14", "INN_15", "R", "H", "E", "B"
             ],
             Game.STAT: {
                 Player.HITTER: [

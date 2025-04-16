@@ -9,10 +9,11 @@ class Scraper(Enum):
     GAME = "game"
     PLAYER = "player"
     SCHEDULE = "schedule"
+    SPECTATOR = "spectator"
     TEAM = "team"
 
 class Game(Enum):
-    DETAIL = "detail"
+    SUMMARY = "detail"
     STAT = "stat"
 
 class Player(Enum):
@@ -33,7 +34,7 @@ LOG_DIR = os.path.join(BASE_DIR, "logs")
 # URL and Payload Configuration
 URLS = {
     Scraper.GAME: {
-        Game.DETAIL: "https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll",
+        Game.SUMMARY: "https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll",
         Game.STAT: "https://www.koreabaseball.com/ws/Schedule.asmx/GetBoxScoreScroll"
     },
     Scraper.PLAYER: {
@@ -55,15 +56,13 @@ URLS = {
             "https://www.koreabaseball.com/Record/Player/Runner/Basic.aspx?sort=GAME_CN"
         ],
     },
-    Scraper.SCHEDULE: "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
+    Scraper.SCHEDULE: "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList",
+    Scraper.SPECTATOR: "https://www.koreabaseball.com/Record/Crowd/GraphDaily.aspx"
 }
 
 PAYLOADS = {
     Scraper.GAME: {
         "leId": "1",
-        "srId": "0",  # Default to empty string or 0 instead of None
-        "seasonId": "0",
-        "gameId": "0"
     },
     Scraper.PLAYER: {
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$smData": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$udpContent|ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
@@ -71,13 +70,16 @@ PAYLOADS = {
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderByCol": "GAME_CN",
         "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$hfOrderBy": "DESC",
         "__EVENTTARGET": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$lbtnOrderBy",
-        "__VIEWSTATE": "",  # Handle as empty string or default value
-        "__EVENTVALIDATION": ""
     },
     Scraper.SCHEDULE: {
         "leId": "1",
         "srId": "0,1,3,4,5,6,7,8,9",
-        "date": ""  # Default empty date
+    },
+    Scraper.SPECTATOR: {
+        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ScriptManager1": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$udpRecord|ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$btnSearch",
+        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlMonth": "0",
+        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlDayOfWeek": "0",
+        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$btnSearch": "검색"
     }
 }
 

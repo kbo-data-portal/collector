@@ -17,10 +17,10 @@ def test_game(urls, payloads, columns, test_date):
     """
     # Test game details scraping
     game_details = scrape_game_summary(
-        url=urls[Scraper.GAME][Game.DETAIL], 
+        url=urls[Scraper.GAME][Game.SUMMARY], 
         payload=payloads[Scraper.GAME]
     )
-    assert list(game_details[0].keys()) == columns[Scraper.GAME][Game.DETAIL]
+    assert list(game_details[0].keys()) == columns[Scraper.GAME][Game.SUMMARY]
     
     # Test game statistics scraping
     hitter_columns, pitcher_columns = scrape_player_statistics(

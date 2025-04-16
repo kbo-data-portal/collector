@@ -163,12 +163,12 @@ def scrape_game_summary(url: str, payload: dict) -> list | None:
         logger.error(f"Failed to decode summary tables: {e}")
         return
 
-    full_headers = summary_headers + ["W/L", "W/L/T"] + \
+    full_headers = summary_headers + ["H/A", "W/L", "W/L/T"] + \
         [f"INN_{i}" for i in range(1, innings + 1)] + ["R", "H", "E", "B"]
-
+    
     return [
-        convert_row_data(full_headers, raw_rows[HOME] + table_rows[1]),
-        convert_row_data(full_headers, raw_rows[AWAY] + table_rows[0])
+        convert_row_data(full_headers, raw_rows[HOME] + ["H"] + table_rows[1]),
+        convert_row_data(full_headers, raw_rows[AWAY] + ["A"] + table_rows[0])
     ]
 
 
@@ -219,7 +219,7 @@ def run(
 
         logger.info(f"Processing game for ID {game_id}...")
 
-        summary = scrape_game_summary(game_url[Game.DETAIL], game_payload)
+        summary = scrape_game_summary(game_url[Game.SUMMARY], game_payload)
         stats = scrape_player_statistics(game_url[Game.STAT], game_payload)
 
         if summary and stats:
@@ -234,7 +234,7 @@ def run(
     for date_key, data_by_type in daily_game_data.items():
         path_prefix = f"game/{date_key[:4]}/{date_key}"
         save_scraped_data(data_by_type[Scraper.GAME], path_prefix, "summary", file_format)
-        save_scraped_data(data_by_type[Player.HITTER], path_prefix, "hitters", file_format)
-        save_scraped_data(data_by_type[Player.PITCHER], path_prefix, "pitchers", file_format)
+        save_scraped_data(data_by_type[Player.HITTER], path_prefix, "hitter", file_format)
+        save_scraped_data(data_by_type[Player.PITCHER], path_prefix, "pitcher", file_format)
 
     return True
