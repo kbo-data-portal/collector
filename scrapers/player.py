@@ -86,7 +86,7 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
     logger.info("Starting KBO player stats scraping...")
 
     player_urls = URLS[Scraper.PLAYER]
-    base_payload = PAYLOADS[Scraper.PLAYER]
+    player_payload = PAYLOADS[Scraper.PLAYER]
 
     start_year = target_season or 1982
     end_year = target_season or datetime.now().year
@@ -100,7 +100,7 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
             player_datas = {}
 
             for url in player_urls[player_type]:
-                scrape_player_data(url, base_payload, year, player_datas)
+                scrape_player_data(url, player_payload, year, player_datas)
 
             if player_datas:
                 save_scraped_data(player_datas, f"player/{year}", player_type.value, file_format)

@@ -76,8 +76,8 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
     """Main runner for scraping KBO game schedule."""
     logger.info("Starting KBO schedule scraping...")
 
-    url = URLS[Scraper.SCHEDULE]
-    payload = PAYLOADS[Scraper.SCHEDULE]
+    schedule_url = URLS[Scraper.SCHEDULE]
+    schedule_payload = PAYLOADS[Scraper.SCHEDULE]
 
     start_season = target_season or 2001
     end_season = target_season or datetime.now().year
@@ -88,7 +88,7 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
         start_date = datetime(target_year, 1, 1)
         end_date = datetime(target_year, 12, 31)
 
-        schedule_records = scrape_schedule_data(url, payload, start_date, end_date)
+        schedule_records = scrape_schedule_data(schedule_url, schedule_payload, start_date, end_date)
 
         if schedule_records:
             save_scraped_data(schedule_records, "schedule", f"{target_year}", file_format)
