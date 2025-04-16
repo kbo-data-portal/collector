@@ -68,6 +68,9 @@ def columns():
             "START_PIT_CK", "T_GROUP_SC", "T_RANK_NO", "B_GROUP_SC", "B_RANK_NO", 
             "ROUND_SC", "DETAIL_SC", "GAME_NO", "LINEUP_CK", "VOD_CK", "KBOT_SE", "SCORE_CK",
             "CHECK_SWING_CK"
+        ],
+        Scraper.SPECTATOR: [
+            "G_DT", "DAY_NM", "HOME_NM", "AWAY_NM", "S_NM", "S_CNT"
         ]
     }
 
