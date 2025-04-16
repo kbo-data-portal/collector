@@ -1,6 +1,6 @@
 import argparse
 
-from scrapers import game, player, schedule, team
+from scrapers import game, player, schedule, spectator, team
 
 
 def scrape_all_data(args: argparse.Namespace) -> None:
@@ -24,12 +24,17 @@ def scrape_game_data(args: argparse.Namespace) -> None:
 
 def scrape_player_data(args: argparse.Namespace) -> None:
     """Handle scraping player data."""
-    schedule.run(args.season, args.format)
+    player.run(args.season, args.format)
 
 
 def scrape_schedule_data(args: argparse.Namespace) -> None:
     """Handle scraping schedule data."""
     schedule.run(args.season, args.format)
+
+
+def scrape_spectator_data(args: argparse.Namespace) -> None:
+    """Handle scraping spectator data."""
+    spectator.run(args.season, args.format)
 
 
 def scrape_team_data(args: argparse.Namespace) -> None:
@@ -71,6 +76,11 @@ def create_parser() -> argparse.ArgumentParser:
     schedule_parser = subparsers.add_parser("schedule", help="Scrape schedule data")
     add_format_argument(schedule_parser)
     schedule_parser.set_defaults(func=scrape_schedule_data)
+
+    # Spectator data
+    spectator_parser = subparsers.add_parser("spectator", help="Scrape spectator data")
+    add_format_argument(spectator_parser)
+    spectator_parser.set_defaults(func=scrape_spectator_data)
 
     # Team data
     team_parser = subparsers.add_parser("team", help="Scrape team data")

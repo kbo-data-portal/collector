@@ -1,12 +1,12 @@
 def convert_column_name(column_name: str) -> str | None:
     """
-    Converts a Korean column name to a standardized English column key.
+    Converts a column name to a standardized column key.
 
     Args:
         column_name (str): The original column name.
 
     Returns:
-        str | None: The converted column name in English format,
+        str | None: The converted column name in format,
                     or None if the column should be skipped.
     """
     if column_name == "순위":
@@ -35,6 +35,12 @@ def convert_column_name(column_name: str) -> str | None:
         "실점": "R",
         "자책": "ER",
         "평균자책점": "ERA",
+        "날짜": "G_DT",
+        "요일": "DAY_NM",
+        "홈": "HOME_NM",
+        "방문": "AWAY_NM",
+        "구장": "S_NM",
+        "관중수": "S_CNT"
     }
 
     return column_mapping.get(column_name, column_name.replace("/", "_").upper())
