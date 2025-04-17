@@ -7,6 +7,7 @@ def scrape_all_data(args: argparse.Namespace) -> None:
     """Handle scraping all data."""
     player.run(args.season, args.format)
     schedule.run(args.season, args.format)
+    spectator.run(args.season, args.format)
     game.run(
         target_season=args.season, 
         file_format=args.format
