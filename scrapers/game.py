@@ -1,3 +1,4 @@
+import sys
 import json
 from datetime import datetime
 from requests.exceptions import RequestException
@@ -98,6 +99,7 @@ def scrape_player_statistics(url: str, payload: dict) -> tuple | None:
 
     try:
         game_json = fetch_json_response(url, payload)
+        print(f"Game JSON: {game_json}")
         if not game_json or int(game_json.get("code", 0)) != 100:
             logger.warning(f"No valid player data found for game {game_id}.")
             return
@@ -176,7 +178,7 @@ def run(
     target_season: int = None, 
     target_date: str | None = None, 
     file_format: str = "parquet"
-) -> bool:
+) -> None:
     """Main runner for scraping KBO game summary and player data."""
     logger.info("Starting KBO game data scraping...")
 
@@ -193,7 +195,7 @@ def run(
 
     if not schedule_data:
         logger.warning("No schedule found. Exiting pipeline.")
-        return False
+        sys.exit(1)
 
     game_url = URLS[Scraper.GAME]
     game_payload = PAYLOADS[Scraper.GAME]
@@ -229,12 +231,9 @@ def run(
             daily_game_data[game_date][Player.PITCHER].extend(pitcher_data)
         else:
             logger.warning(f"No game data for game {game_id}.")
-            return False
 
     for date_key, data_by_type in daily_game_data.items():
         path_prefix = f"game/{date_key[:4]}/{date_key}"
         save_scraped_data(data_by_type[Scraper.GAME], path_prefix, "summary", file_format)
         save_scraped_data(data_by_type[Player.HITTER], path_prefix, "hitter", file_format)
         save_scraped_data(data_by_type[Player.PITCHER], path_prefix, "pitcher", file_format)
-
-    return True

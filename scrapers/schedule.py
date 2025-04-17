@@ -72,7 +72,7 @@ def scrape_schedule_data(
     return collected_schedules
 
 
-def run(target_season: int = None, file_format: str = "parquet") -> bool:
+def run(target_season: int = None, file_format: str = "parquet") -> None:
     """Main runner for scraping KBO game schedule."""
     logger.info("Starting KBO schedule scraping...")
 
@@ -94,6 +94,3 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
             save_scraped_data(schedule_records, "schedule", f"{target_year}", file_format)
         else:
             logger.warning(f"No schedule data found for season {target_year}.")
-            return False
-
-    return True

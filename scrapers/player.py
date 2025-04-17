@@ -81,7 +81,7 @@ def scrape_player_data(
     session.close()
 
 
-def run(target_season: int = None, file_format: str = "parquet") -> bool:
+def run(target_season: int = None, file_format: str = "parquet") -> None:
     """Main runner for scraping KBO game player stats."""
     logger.info("Starting KBO player stats scraping...")
 
@@ -106,6 +106,3 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
                 save_scraped_data(player_datas, f"player/{year}", player_type.value, file_format)
             else:
                 logger.warning(f"No player stats found for {player_type.name}.")
-                return False
-
-    return True

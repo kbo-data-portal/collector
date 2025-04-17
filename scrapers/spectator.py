@@ -70,7 +70,7 @@ def scrape_spectator_data(
     return collected_spectators
 
 
-def run(target_season: int = None, file_format: str = "parquet") -> bool:
+def run(target_season: int = None, file_format: str = "parquet") -> None:
     """Main runner for scraping KBO game spectator."""
     logger.info("Starting KBO spectator scraping...")
 
@@ -89,6 +89,4 @@ def run(target_season: int = None, file_format: str = "parquet") -> bool:
             save_scraped_data(spectator_records, "spectator", f"{target_year}", file_format)
         else:
             logger.warning(f"No spectator data found for season {target_year}.")
-            return False
-
-    return True
+            
