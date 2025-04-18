@@ -99,7 +99,6 @@ def scrape_player_statistics(url: str, payload: dict) -> tuple | None:
 
     try:
         game_json = fetch_json_response(url, payload)
-        print(f"Game JSON: {game_json}")
         if not game_json or int(game_json.get("code", 0)) != 100:
             logger.warning(f"No valid player data found for game {game_id}.")
             return

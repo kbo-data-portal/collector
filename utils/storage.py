@@ -62,7 +62,7 @@ def save_scraped_data(
     """
     try:
         if not data:
-            logger.warning(f"No data to save {file_name}.{format}")
+            logger.warning(f"No data to save {data_type}/{file_name}.{format}")
             return
 
         output_dir = os.path.join(BASE_DIR, "output", data_type)

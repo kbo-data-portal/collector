@@ -71,7 +71,7 @@ def scrape_player_data(
 
             for row in rows:
                 player_id = f"{season}{row[1]}{row[2]}"
-                player_datas.setdefault(player_id, {"SEASON_ID": season})
+                player_datas.setdefault(player_id, {"LE_ID": 1, "SR_ID": 0, "SEASON_ID": season})
                 player_datas[player_id].update(convert_row_data(headers, row))
 
         except Exception as e:
@@ -106,3 +106,4 @@ def run(target_season: int = None, file_format: str = "parquet") -> None:
                 save_scraped_data(player_datas, f"player/{year}", player_type.value, file_format)
             else:
                 logger.warning(f"No player stats found for {player_type.name}.")
+        break

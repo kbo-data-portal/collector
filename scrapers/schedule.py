@@ -53,13 +53,11 @@ def scrape_schedule_data(
             json_response = fetch_json_response(url, payload)
             if not json_response or int(json_response.get("code", 0)) != 100:
                 logger.warning(f"No valid response for {date_str}.")
-                start_date += timedelta(days=1)
                 continue
 
             headers, rows = parse_schedule_data(json_response)
             if not rows:
                 logger.info(f"No rows returned for {date_str}.")
-                start_date += timedelta(days=1)
                 continue
 
             for row in rows:
