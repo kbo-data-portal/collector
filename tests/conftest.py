@@ -45,11 +45,11 @@ def columns():
         },
         Scraper.PLAYER: {
             Player.HITTER: [
-                "SEASON_ID", "P_NM", "TEAM_NM", "AVG", "G", "PA", "AB", "R", "H", 
+                "LE_ID", "SR_ID", "SEASON_ID", "P_NM", "TEAM_NM", "AVG", "G", "PA", "AB", "R", "H", 
                 "2B", "3B", "HR", "TB", "RBI", "SAC", "SF"
             ],
             Player.PITCHER: [
-                "SEASON_ID", "P_NM", "TEAM_NM", "ERA", "G", "W", "L", "SV", "HLD", 
+                "LE_ID", "SR_ID", "SEASON_ID", "P_NM", "TEAM_NM", "ERA", "G", "W", "L", "SV", "HLD", 
                 "WPCT", "IP", "H", "HR", "BB", "HBP", "SO", "R", "ER", "WHIP"
             ],
             #Player.FIELDER: [],
