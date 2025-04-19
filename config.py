@@ -9,7 +9,6 @@ class Scraper(Enum):
     GAME = "game"
     PLAYER = "player"
     SCHEDULE = "schedule"
-    SPECTATOR = "spectator"
     TEAM = "team"
 
 class Game(Enum):
@@ -56,8 +55,7 @@ URLS = {
             "https://www.koreabaseball.com/Record/Player/Runner/Basic.aspx?sort=GAME_CN"
         ],
     },
-    Scraper.SCHEDULE: "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList",
-    Scraper.SPECTATOR: "https://www.koreabaseball.com/Record/Crowd/GraphDaily.aspx"
+    Scraper.SCHEDULE: "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
 }
 
 PAYLOADS = {
@@ -74,12 +72,6 @@ PAYLOADS = {
     Scraper.SCHEDULE: {
         "leId": "1",
         "srId": "0,1,3,4,5,6,7,8,9",
-    },
-    Scraper.SPECTATOR: {
-        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ScriptManager1": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$udpRecord|ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$btnSearch",
-        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlMonth": "0",
-        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlDayOfWeek": "0",
-        "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$btnSearch": "검색"
     }
 }
 

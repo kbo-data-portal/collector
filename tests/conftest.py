@@ -27,7 +27,7 @@ def columns():
                 "AWAY_NM", "AWAY_ID", "S_NM", "CROWD_CN", "H_W_CN", "H_L_CN", "H_D_CN", 
                 "A_W_CN", "A_L_CN", "A_D_CN", "T_SCORE_CN", "B_SCORE_CN", "START_TM", 
                 "END_TM", "USE_TM", "FULL_HOME_NM", "FULL_AWAY_NM", "H_INITIAL_LK", 
-                "A_INITIAL_LK", "H_A", "W_L", "W_L_T", "INN_1", "INN_2", "INN_3", 
+                "A_INITIAL_LK", "H_A", "W_L", "W_L_D", "INN_1", "INN_2", "INN_3", 
                 "INN_4", "INN_5", "INN_6", "INN_7", "INN_8", "INN_9", "INN_10", 
                 "INN_11", "INN_12", "INN_13", "INN_14", "INN_15", "R", "H", "E", "B"
             ],
@@ -68,9 +68,6 @@ def columns():
             "START_PIT_CK", "T_GROUP_SC", "T_RANK_NO", "B_GROUP_SC", "B_RANK_NO", 
             "ROUND_SC", "DETAIL_SC", "GAME_NO", "LINEUP_CK", "VOD_CK", "KBOT_SE", "SCORE_CK",
             "CHECK_SWING_CK"
-        ],
-        Scraper.SPECTATOR: [
-            "G_DT", "DAY_NM", "HOME_NM", "AWAY_NM", "S_NM", "S_CNT"
         ]
     }
 

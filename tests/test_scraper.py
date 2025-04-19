@@ -4,7 +4,6 @@ from config import Scraper, Game, Player
 from scrapers.game import scrape_game_summary, scrape_player_statistics
 from scrapers.player import scrape_player_data
 from scrapers.schedule import scrape_schedule_data
-from scrapers.spectator import scrape_spectator_data
 from scrapers.team import scrape_team
 
 
@@ -83,21 +82,6 @@ def test_schedule(urls, payloads, columns, test_date):
         end_date=test_date
     )
     assert list(schedule_data[0].keys()) == columns[Scraper.SCHEDULE]
-
-
-def test_spectator(urls, payloads, columns, test_date):
-    """
-    Test the spectator scraping function by verifying the extracted column headers for the spectator data.
-    
-    This test ensures:
-    1. The scraped spectator data matches the expected columns for the given date.
-    """
-    spectator_data = scrape_spectator_data(
-        url=urls[Scraper.SPECTATOR], 
-        payload=payloads[Scraper.SPECTATOR], 
-        season=2023
-    )
-    assert list(spectator_data[0].keys()) == columns[Scraper.SPECTATOR]
 
 
 def test_team():

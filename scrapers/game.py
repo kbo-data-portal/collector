@@ -164,7 +164,7 @@ def scrape_game_summary(url: str, payload: dict) -> list | None:
         logger.error(f"Failed to decode summary tables: {e}")
         return
 
-    full_headers = headers + ["H/A", "W/L", "W/L/T"] + \
+    full_headers = headers + ["H/A", "W/L", "W/L/D"] + \
         [f"INN_{i}" for i in range(1, innings + 1)] + ["R", "H", "E", "B"]
     
     return [
