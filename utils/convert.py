@@ -43,7 +43,10 @@ def convert_column_name(column_name: str) -> str | None:
         "관중수": "S_CNT"
     }
 
-    return column_mapping.get(column_name, column_name.replace("/", "_").upper())
+    return column_mapping.get(column_name, column_name
+                              .replace("/", "_")
+                              .replace("-", "_")
+                              .replace(" ", "_").upper())
 
 
 def convert_to_data(value) -> float | int | str | None:
