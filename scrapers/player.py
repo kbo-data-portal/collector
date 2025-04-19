@@ -106,4 +106,3 @@ def run(target_season: int = None, file_format: str = "parquet") -> None:
                 save_scraped_data(player_datas, f"player/{year}", player_type.value, file_format)
             else:
                 logger.warning(f"No player stats found for {player_type.name}.")
-        break
