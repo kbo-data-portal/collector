@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from config import logger
@@ -16,8 +17,9 @@ def parse_player_data(soup) -> tuple[list[str], list[list]]:
         return None, None
 
     try:
-        headers = [th.get_text(strip=True) for th in soup.select_one("thead tr").find_all("th")]
+        headers = ["P_ID"] + [th.get_text(strip=True) for th in soup.select_one("thead tr").find_all("th")]
         row_data = [
+            [re.search(r'playerId=(\d+)', tr.find("a")["href"]).group(1)] +
             [td.get_text(strip=True) for td in tr.find_all("td")]
             for tr in soup.select("tbody tr")
         ]
