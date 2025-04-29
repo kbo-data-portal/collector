@@ -193,8 +193,8 @@ def run(
     schedule_data = schedule.scrape_schedule_data(schedule_url, schedule_payload, start_date, end_date)
 
     if not schedule_data:
-        logger.warning("No schedule found. Exiting pipeline.")
-        sys.exit(1)
+        logger.info("No schedule found. Finishing pipeline.")
+        return
 
     game_url = URLS[Scraper.GAME]
     game_payload = PAYLOADS[Scraper.GAME]
