@@ -94,17 +94,17 @@ def run(target_season: int = None, file_format: str = "parquet") -> None:
     end_year = target_season or datetime.now().year
 
     for player_type in Player:
-        for year in range(start_year, end_year + 1):
-            if player_type in (Player.FIELDER, Player.RUNNER) and year < 2001:
+        for target_year in range(start_year, end_year + 1):
+            if player_type in (Player.FIELDER, Player.RUNNER) and target_year < 2001:
                 continue
 
             logger.info(f"Processing player stats for {player_type.name}...")
             player_datas = {}
 
             for url in player_urls[player_type]:
-                scrape_player_data(url, player_payload, year, player_datas)
+                scrape_player_data(url, player_payload, target_year, player_datas)
 
             if player_datas:
-                save_scraped_data(player_datas, f"player/{year}", player_type.value, file_format)
+                save_scraped_data(player_datas, f"player/{target_year}", player_type.value, file_format)
             else:
                 logger.warning(f"No player stats found for {player_type.name}.")
