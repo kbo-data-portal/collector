@@ -8,7 +8,8 @@ class KBOBaseScraper(ABC):
     """Base class for scraping KBO data (player, game, schedule, team)."""
 
     def __init__(self): 
-        self.save_dir = "output"
+        self.save_name = None
+        self.save_dir = None
         self.start_year = 1982
         self.current_year = datetime.now().year
 
@@ -36,58 +37,45 @@ class KBOBaseScraper(ABC):
             logger.error(f"Unexpected error during parsing: {e}")
         return None, None
 
-    def save(
-        data: list[dict] | dict,
-        category: str,
-        filename: str,
-        file_format: str = "parquet"
-    ) -> None:
+    def save(self, data: list[dict] | dict, format: str):
         """
         Save the scraped data to a file.
 
         Args:
             data (list[dict] | dict): Data to save.
-            category (str): Type of data (e.g., 'schedule', 'player').
-            filename (str): Name of the output file (without extension).
-            file_format (str, optional): Format of output file ('parquet', 'json', 'csv').
+            format (str, optional): Format of output file ('parquet', 'json', 'csv').
         """
+        if not isinstance(data, list):
+            raise ValueError("Data must be a dictionary or a list of dictionaries.")
+        
         try:
-            if not data:
-                logger.warning(f"No data to save: {category}/{filename}.{file_format}")
-                return
-
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            output_path = os.path.join(base_dir, "output", category)
+            base_dir = os.getcwd()
+            output_path = os.path.join(base_dir, "output", self.save_dir)
             os.makedirs(output_path, exist_ok=True)
 
-            full_path = os.path.join(output_path, f"{filename}.{file_format}")
-
-            if isinstance(data, dict):
-                data = list(data.values())
-            elif not isinstance(data, list):
-                raise ValueError("Data must be a dictionary or a list of dictionaries.")
+            full_path = os.path.join(output_path, f"{self.save_name}.{format}")
 
             df = pd.DataFrame(data)
 
             for column in df.select_dtypes(exclude=["number", "datetime"]).columns:
                 df[column] = df[column].astype("string")
 
-            if file_format == "parquet":
+            if format == "parquet":
                 df.to_parquet(full_path, engine="pyarrow", index=False)
-            elif file_format == "json":
+            elif format == "json":
                 json_str = df.to_json(orient="records", indent=4, force_ascii=False).replace(r"\/", "/")
                 with open(full_path, "w", encoding="utf-8") as f:
                     f.write(json_str)
-            elif file_format == "csv":
+            elif format == "csv":
                 df.to_csv(full_path, index=False, encoding="utf-8")
             else:
-                logger.warning(f"Unsupported file format: {file_format}")
+                logger.warning(f"Unsupported file format: {format}")
 
             logger.info(f"Saved file: {full_path}")
         except Exception as e:
             logger.error(f"Failed to save file: {e}")
 
-    def run(self, year: int = None, file_format: str = "parquet") -> None:
+    def run(self, year: int = None, file_format: str = "parquet"):
         """
         Run scraping job over a target year or full range.
 
@@ -101,6 +89,6 @@ class KBOBaseScraper(ABC):
         for season in range(start, end + 1):
             data = self.fetch(season)
             if data:
-                self.save(data, "schedule", f"{season}", file_format)
+                self.save(data, file_format)
             else:
                 logger.warning(f"No data found for season {season}.")
