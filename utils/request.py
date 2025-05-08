@@ -2,7 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from logger import get_logger
 
+
 logger = get_logger()
+
 
 def send_post_request(
     url: str,
@@ -30,6 +32,7 @@ def send_post_request(
         logger.error(f"Unexpected error during request: {e}")
     return None
 
+
 def fetch_html(
     url: str,
     payload: dict,
@@ -50,6 +53,7 @@ def fetch_html(
     if response:
         return BeautifulSoup(response.text, "lxml")
     return None
+
 
 def fetch_json(
     url: str,
@@ -72,6 +76,7 @@ def fetch_json(
         except Exception as e:
             logger.error(f"Failed to parse JSON: {e}")
     return None
+
 
 def initiate_session(url: str) -> tuple[requests.Session, str, str] | tuple[None, None, None]:
     """
@@ -113,3 +118,4 @@ def initiate_session(url: str) -> tuple[requests.Session, str, str] | tuple[None
         logger.error(f"Unexpected error during session initialization: {e}")
 
     return None, None, None
+

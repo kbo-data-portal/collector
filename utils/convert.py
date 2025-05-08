@@ -116,3 +116,4 @@ def convert_row_data(headers: list[str], values: list[str]) -> dict[str, float |
             row_data[key] = convert_to_data(value)
 
     return row_data
+

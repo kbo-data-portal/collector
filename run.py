@@ -3,12 +3,13 @@ import argparse
 from scrapers.game import GameScheduleScraper, GameResultScraper
 from scrapers.player import PlayerSeasonStatsScraper, PlayerDetailStatsScraper
 
+
 def get_scrapers(args: argparse.Namespace) -> list:
     """Return a list of scraper instances based on the selected command."""
-    if args.command == "game":
-        return [GameResultScraper()]
-    elif args.command == "schedule":
+    if args.command == "schedule":
         return [GameScheduleScraper()]
+    elif args.command == "game":
+        return [GameResultScraper()]
     elif args.command == "player":
         scrapers = []
         for pt in ["hitter", "pitcher", "fielder", "runner"]:
@@ -19,6 +20,7 @@ def get_scrapers(args: argparse.Namespace) -> list:
         return scrapers
     else:
         return []
+
 
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser for the KBO data scraping CLI."""
@@ -40,6 +42,10 @@ def create_parser() -> argparse.ArgumentParser:
             help="Output format: 'parquet', 'json', or 'csv' (default: csv)."
         )
 
+    # Schedule data
+    schedule_parser = subparsers.add_parser("schedule", help="Scrape schedule data")
+    add_format_argument(schedule_parser)
+
     # Game data
     game_parser = subparsers.add_parser("game", help="Scrape game data")
     add_format_argument(game_parser)
@@ -49,11 +55,8 @@ def create_parser() -> argparse.ArgumentParser:
     player_parser = subparsers.add_parser("player", help="Scrape player data")
     add_format_argument(player_parser)
 
-    # Schedule data
-    schedule_parser = subparsers.add_parser("schedule", help="Scrape schedule data")
-    add_format_argument(schedule_parser)
-
     return parser
+
 
 def main():
     parser = create_parser()
@@ -66,6 +69,7 @@ def main():
 
     for scraper in scrapers:
         scraper.run(args.season, args.date, args.format)
+
 
 if __name__ == "__main__":
     main()
