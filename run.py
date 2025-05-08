@@ -53,9 +53,6 @@ def create_parser() -> argparse.ArgumentParser:
     schedule_parser = subparsers.add_parser("schedule", help="Scrape schedule data")
     add_format_argument(schedule_parser)
 
-    # Team data
-    team_parser = subparsers.add_parser("team", help="Scrape team data")
-
     return parser
 
 def main():
