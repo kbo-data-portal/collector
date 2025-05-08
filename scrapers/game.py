@@ -1,238 +1,136 @@
-import sys
+from datetime import datetime, timedelta
 import json
-from datetime import datetime
-from requests.exceptions import RequestException
 
-from config import logger
-from config import URLS, PAYLOADS, HOME, AWAY
-from config import Scraper, Game, Player
-
-from scrapers import schedule
-
+from scrapers.base import KBOBaseScraper
 from utils.convert import convert_row_data
-from utils.request import fetch_json_response
-from utils.storage import save_scraped_data
+from utils.request import fetch_json
 
 
-def parse_player_stats(tables: list[dict]) -> list[list[str]]:
-    """Parses nested table structures to extract player statistics."""
-    combined_data = []
+class GameScheduleScraper(KBOBaseScraper):
+    def __init__(self):
+        super().__init__()
 
-    try:
-        parsed_tables = [
-            [[cell["Text"] for cell in row["row"]] for row in table["rows"]]
-            for table in tables
-        ]
-    except (KeyError, TypeError) as e:
-        logger.error(f"Failed to parse table rows: {e}")
-        return []
+        self.url = "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
+        self.payload = {
+            "leId": "1",
+            "srId": "0,1,3,4,5,7",
+        }
 
-    for rows in zip(*parsed_tables):
-        combined_data.append(sum(rows, []))
-    
-    return combined_data
-
-
-def parse_hitter_stats(game_json: dict, game_id: str, player_stats: dict) -> None:
-    """Parses hitter statistics from JSON and updates the player_stats dictionary."""
-    innings = game_json.get("realMaxInning", 0)
-
-    headers = ["G_ID", "H/A", "BAT", "POS", "선수명"]
-    headers += [f"INN_{i}" for i in range(1, innings + 1)]
-    headers += ["타수", "안타", "타점", "득점", "타율"]
-
-    try:
-        home_hitters = parse_player_stats([
-            json.loads(game_json.get("arrHitter", [{}])[1].get("table1", "[]")),
-            json.loads(game_json.get("arrHitter", [{}])[1].get("table2", "[]")),
-            json.loads(game_json.get("arrHitter", [{}])[1].get("table3", "[]"))
-        ])
-        away_hitters = parse_player_stats([
-            json.loads(game_json.get("arrHitter", [{}])[0].get("table1", "[]")),
-            json.loads(game_json.get("arrHitter", [{}])[0].get("table2", "[]")),
-            json.loads(game_json.get("arrHitter", [{}])[0].get("table3", "[]"))
-        ])
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decoding failed for hitter stats: {e}")
-        return
-
-    player_stats[HOME][Player.HITTER].extend(
-        [convert_row_data(headers, [game_id, "H"] + row) for row in home_hitters]
-    )
-    player_stats[AWAY][Player.HITTER].extend(
-        [convert_row_data(headers, [game_id, "A"] + row) for row in away_hitters]
-    )
-
-
-def parse_pitcher_stats(game_json: dict, game_id: str, player_stats: dict) -> None:
-    """Parses pitcher statistics from JSON and updates the player_stats dictionary."""
-    headers = [
-        "G_ID", "H/A", "선수명", "등판", "결과", "승", "패", "세", "이닝", "타자",
-        "투구수", "타수", "피안타", "홈런", "4사구", "삼진", "실점", "자책", "평균자책점"
-    ]
-
-    try:
-        home_pitchers = parse_player_stats([
-            json.loads(game_json.get("arrPitcher", [{}])[1].get("table", "[]"))
-        ])
-        away_pitchers = parse_player_stats([
-            json.loads(game_json.get("arrPitcher", [{}])[0].get("table", "[]"))
-        ])
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decoding failed for pitcher stats: {e}")
-        return
-
-    player_stats[HOME][Player.PITCHER].extend(
-        [convert_row_data(headers, [game_id, "H"] + row) for row in home_pitchers]
-    )
-    player_stats[AWAY][Player.PITCHER].extend(
-        [convert_row_data(headers, [game_id, "A"] + row) for row in away_pitchers]
-    )
-
-
-def scrape_player_statistics(url: str, payload: dict) -> tuple | None:
-    """Scrapes both hitter and pitcher stats from game stat endpoint."""
-    logger.info(f"Starting to fetch player stats from: {url}")
-
-    game_id = payload["gameId"]
-    logger.info(f"Fetching stats for game ID {game_id}...")
-
-    try:
-        game_json = fetch_json_response(url, payload)
-        if not game_json or int(game_json.get("code", 0)) != 100:
-            logger.warning(f"No valid player data found for game {game_id}.")
-            return
-    except RequestException as e:
-        logger.error(f"Failed request for player stats: {e}")
-        return
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON format for player stats: {e}")
-        return
-
-    player_stats = {
-        HOME: {Player.HITTER: [], Player.PITCHER: []},
-        AWAY: {Player.HITTER: [], Player.PITCHER: []}
-    }
-
-    parse_hitter_stats(game_json, game_id, player_stats)
-    parse_pitcher_stats(game_json, game_id, player_stats)
-
-    return (
-        player_stats[HOME][Player.HITTER] + player_stats[AWAY][Player.HITTER],
-        player_stats[HOME][Player.PITCHER] + player_stats[AWAY][Player.PITCHER]
-    )
-
-
-def scrape_game_summary(url: str, payload: dict) -> list | None:
-    """Scrapes the overall summary (runs/hits/errors/innings) for a game."""
-    logger.info(f"Starting to fetch game summary from: {url}")
-
-    game_id = payload["gameId"]
-    logger.info(f"Fetching summary for game ID {game_id}...")
-
-    try:
-        game_json = fetch_json_response(url, payload)
-        if not game_json or int(game_json.get("code", 0)) != 100:
-            logger.warning(f"No valid summary data for game {game_id}.")
-            return
-    except RequestException as e:
-        logger.error(f"Failed request for summary data: {e}")
-        return
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON format for summary: {e}")
-        return
-
-    innings = game_json.get("maxInning", 0)
-
-    headers = []
-    rows = {HOME: [], AWAY: []}
-    for key, value in game_json.items():
-        if key == "maxInning":
-            break
-        if not key.startswith("table"):
-            headers.append(key)
-            rows[HOME].append(value)
-            rows[AWAY].append(value)
-
-    try:
-        table_rows = parse_player_stats([
-            json.loads(game_json.get("table1", "[]")),
-            json.loads(game_json.get("table2", "[]")),
-            json.loads(game_json.get("table3", "[]"))
-        ])
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to decode summary tables: {e}")
-        return
-
-    full_headers = headers + ["H/A", "W/L", "W/L/D"] + \
-        [f"INN_{i}" for i in range(1, innings + 1)] + ["R", "H", "E", "B"]
-    
-    return [
-        convert_row_data(full_headers, rows[HOME] + ["H"] + table_rows[1]),
-        convert_row_data(full_headers, rows[AWAY] + ["A"] + table_rows[0])
-    ]
-
-
-def run(
-    target_season: int = None, 
-    target_date: str | None = None, 
-    file_format: str = "parquet"
-) -> None:
-    """Main runner for scraping KBO game summary and player data."""
-    logger.info("Starting KBO game data scraping...")
-
-    if target_season:
-        start_date = datetime(target_season, 1, 1)
-        end_date = datetime(target_season, 12, 31)
-    else:
-        start_date = datetime.strptime(target_date, "%Y%m%d") if target_date else datetime(2001, 4, 5)
-        end_date = datetime.strptime(target_date, "%Y%m%d") if target_date else datetime.now()
-
-    schedule_url = URLS[Scraper.SCHEDULE]
-    schedule_payload = PAYLOADS[Scraper.SCHEDULE]
-    schedule_data = schedule.scrape_schedule_data(schedule_url, schedule_payload, start_date, end_date)
-
-    if not schedule_data:
-        logger.info("No schedule found. Finishing pipeline.")
-        return
-
-    game_url = URLS[Scraper.GAME]
-    game_payload = PAYLOADS[Scraper.GAME]
-    daily_game_data = {}
-
-    for game in schedule_data:
-        game_id = game.get("G_ID")
-        game_date = str(game.get("G_DT"))
-
-        if not game_id:
-            logger.warning("Missing game ID in schedule entry.")
-            continue
-
-        daily_game_data.setdefault(game_date, {
-            Scraper.GAME: [],
-            Player.HITTER: [],
-            Player.PITCHER: []
-        })
+    def _parse(self, response):
+        games = response.get("game", [])
+        if not games:
+            self.logger.warning("No game entries found in response.")
+            return None, None
         
-        game_payload["srId"] = str(game.get("SR_ID"))
-        game_payload["seasonId"] = str(game.get("SEASON_ID"))
-        game_payload["gameId"] = str(game_id)
+        headers = [key.strip() for key in games[0].keys()]
+        rows = [[value for value in game.values()] for game in games]
 
-        logger.info(f"Processing game for ID {game_id}...")
+        return headers, rows
+    
+    def fetch(self, season, date):
+        start_date = datetime.strptime(date, "%Y%m%d") if date else datetime(season, 1, 1)
+        end_date = datetime.strptime(date, "%Y%m%d") if date else datetime(season, 12, 31)
 
-        summary = scrape_game_summary(game_url[Game.SUMMARY], game_payload)
-        stats = scrape_player_statistics(game_url[Game.STAT], game_payload)
+        result = {}
+        while start_date <= end_date:
+            date_str = start_date.strftime("%Y%m%d")
 
-        if summary and stats:
-            hitter_data, pitcher_data = stats
-            daily_game_data[game_date][Scraper.GAME].extend(summary)
-            daily_game_data[game_date][Player.HITTER].extend(hitter_data)
-            daily_game_data[game_date][Player.PITCHER].extend(pitcher_data)
-        else:
-            logger.warning(f"No game data for game {game_id}.")
+            self.logger.info(f"Fetching schedule for date {date_str}...")
+            self.payload["date"] = date_str
 
-    for date_key, data_by_type in daily_game_data.items():
-        path_prefix = f"game/{date_key[:4]}/{date_key}"
-        save_scraped_data(data_by_type[Scraper.GAME], path_prefix, "summary", file_format)
-        save_scraped_data(data_by_type[Player.HITTER], path_prefix, "hitter", file_format)
-        save_scraped_data(data_by_type[Player.PITCHER], path_prefix, "pitcher", file_format)
+            try:
+                response = fetch_json(self.url, self.payload)
+                if not response or int(response.get("code", 0)) != 100:
+                    self.logger.warning(f"No valid response for date {date_str}.")
+                    continue
+
+                headers, rows = self.parse(response)
+                if not rows:
+                    self.logger.info(f"No rows returned for date {date_str}.")
+                    continue
+                    
+                file_path = f"game/schedule/{season}/{date_str}"
+                self.backup(response, file_path, "json")
+
+                for row in rows:
+                    result.setdefault(file_path, [])
+                    result[file_path].append(convert_row_data(headers, row))
+            except Exception as e:
+                self.logger.error(f"Error fetching schedule for date {date_str}: {e}")
+            finally:
+                start_date += timedelta(days=1)
+
+        return result
+
+
+class GameResultScraper(KBOBaseScraper):
+    def __init__(self):
+        super().__init__()
+        
+        self.url = "https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll"
+        self.payload = {
+            "leId": "1"
+        }
+
+    def _parse(self, response):
+        maxInnings = response.get("maxInning", None)
+        if not maxInnings:
+            self.logger.warning("No inning datas found in response.")
+            return None, None
+        
+        headers, rows = ["IS_HOME"], [[False],[True]]
+        for key, value in response.items():
+            if key == "maxInning":
+                break
+            if not key.startswith("table"):
+                headers.append(key)
+                rows[0].append(value)
+                rows[1].append(value)
+
+        headers += [f"INN_{i}" for i in range(1, maxInnings + 1)] + ["R", "H", "E", "B"]
+
+        tables = [
+            json.loads(response.get("table2", "[]")),
+            json.loads(response.get("table3", "[]"))
+        ]
+        for table in tables:
+            rows[0].extend([cell["Text"] for cell in table["rows"][0]["row"]])
+            rows[1].extend([cell["Text"] for cell in table["rows"][1]["row"]])
+
+        return headers, rows
+    
+    def fetch(self, season, date):
+        result = {}
+        games = GameScheduleScraper().fetch(season, date)
+        for schedules in games.values():
+            for schedule in schedules:
+                game_id = schedule.get("G_ID", None)
+
+                self.logger.info(f"Fetching result for game id {game_id}...")
+                self.payload["srId"] = schedule.get("SR_ID", None)
+                self.payload["seasonId"] = schedule.get("SEASON_ID", None)
+                self.payload["gameId"] = game_id
+
+                try:
+                    response = fetch_json(self.url, self.payload)
+                    if not response or int(response.get("code", 0)) != 100:
+                        self.logger.warning(f"No valid response for game id {game_id}.")
+                        continue
+
+                    headers, rows = self.parse(response)
+                    if not rows:
+                        self.logger.info(f"No rows returned for game id {game_id}.")
+                        continue
+
+                    file_path = f"game/result/{season}/{game_id[:8]}"
+                    self.backup(response, file_path, "json")
+                    
+                    for row in rows:
+                        result.setdefault(file_path, [])
+                        result[file_path].append(convert_row_data(headers, row))
+                except Exception as e:
+                    self.logger.error(f"Error fetching result for game id {game_id}: {e}")
+
+        return result
+    
+    

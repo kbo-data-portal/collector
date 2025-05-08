@@ -1,40 +1,25 @@
 import argparse
 
-from scrapers import game, player, schedule, team
+from scrapers.game import GameScheduleScraper, GameResultScraper
+from scrapers.player import PlayerSeasonStatsScraper, PlayerDetailStatsScraper
 
 
-def scrape_all_data(args: argparse.Namespace) -> None:
-    """Handle scraping all data."""
-    player.run(args.season, args.format)
-    schedule.run(args.season, args.format)
-    game.run(
-        target_season=args.season, 
-        file_format=args.format
-    )
-
-
-def scrape_game_data(args: argparse.Namespace) -> None:
-    """Handle scraping game data."""
-    game.run(
-        target_season=args.season, 
-        target_date=args.date, 
-        file_format=args.format
-    )
-
-
-def scrape_player_data(args: argparse.Namespace) -> None:
-    """Handle scraping player data."""
-    player.run(args.season, args.format)
-
-
-def scrape_schedule_data(args: argparse.Namespace) -> None:
-    """Handle scraping schedule data."""
-    schedule.run(args.season, args.format)
-
-
-def scrape_team_data(args: argparse.Namespace) -> None:
-    """Handle scraping team data."""
-    team.run()
+def get_scrapers(args: argparse.Namespace) -> list:
+    """Return a list of scraper instances based on the selected command."""
+    if args.command == "schedule":
+        return [GameScheduleScraper()]
+    elif args.command == "game":
+        return [GameResultScraper()]
+    elif args.command == "player":
+        scrapers = []
+        for pt in ["hitter", "pitcher", "fielder", "runner"]:
+            scrapers.append(PlayerSeasonStatsScraper(pt))
+        for pt in ["hitter", "pitcher"]:
+            scrapers.append(PlayerDetailStatsScraper(pt, "daily"))
+            scrapers.append(PlayerDetailStatsScraper(pt, "situation"))
+        return scrapers
+    else:
+        return []
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -43,54 +28,47 @@ def create_parser() -> argparse.ArgumentParser:
         description="KBO Data Scraping Tool",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    subparsers = parser.add_subparsers(dest="command", help="Choose a scraping target")
+    subparsers = parser.add_subparsers(dest="command", help="Choose a scraping target", required=True)
 
     # Common format argument function
     def add_format_argument(parser: argparse.ArgumentParser) -> None:
         parser.add_argument("-s", "--season", type=int, help="Season year (e.g., 2011)")
+        parser.add_argument("-d", "--date", type=str, help="Specify date (YYYYMMDD)")
         parser.add_argument(
             "-f", "--format",
             type=str,
             choices=["parquet", "json", "csv"],
-            default="parquet",
-            help="Output format: 'parquet', 'json', or 'csv' (default: parquet)."
+            default="csv",
+            help="Output format: 'parquet', 'json', or 'csv' (default: csv)."
         )
-
-    # Game data
-    game_parser = subparsers.add_parser("game", help="Scrape game data")
-    game_parser.add_argument("-d", "--date", type=str, help="Specify date (YYYYMMDD)")
-    add_format_argument(game_parser)
-    game_parser.set_defaults(func=scrape_game_data)
-
-    # Player data
-    player_parser = subparsers.add_parser("player", help="Scrape player data")
-    add_format_argument(player_parser)
-    player_parser.set_defaults(func=scrape_player_data)
 
     # Schedule data
     schedule_parser = subparsers.add_parser("schedule", help="Scrape schedule data")
     add_format_argument(schedule_parser)
-    schedule_parser.set_defaults(func=scrape_schedule_data)
 
-    # Team data
-    team_parser = subparsers.add_parser("team", help="Scrape team data")
-    team_parser.set_defaults(func=scrape_team_data)
+    # Game data
+    game_parser = subparsers.add_parser("game", help="Scrape game data")
+    add_format_argument(game_parser)
+    game_parser.set_defaults(func=GameResultScraper())
 
-    add_format_argument(parser)
-    parser.set_defaults(func=scrape_all_data)
+    # Player data
+    player_parser = subparsers.add_parser("player", help="Scrape player data")
+    add_format_argument(player_parser)
 
     return parser
 
 
-def main() -> None:
-    """Main entry point for the CLI."""
+def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    if hasattr(args, "func"):
-        args.func(args)
-    else:
+    scrapers = get_scrapers(args)
+    if not scrapers:
         parser.print_help()
+        return
+
+    for scraper in scrapers:
+        scraper.run(args.season, args.date, args.format)
 
 
 if __name__ == "__main__":
