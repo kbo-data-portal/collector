@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from config import logger
 
-
 def send_post_request(
     url: str,
     payload: dict,
@@ -29,8 +28,7 @@ def send_post_request(
         logger.error(f"Unexpected error during request: {e}")
     return None
 
-
-def fetch_html_soup(
+def fetch_html(
     url: str,
     payload: dict,
     session: requests.Session
@@ -51,8 +49,7 @@ def fetch_html_soup(
         return BeautifulSoup(response.text, "lxml")
     return None
 
-
-def fetch_json_response(
+def fetch_json(
     url: str,
     payload: dict
 ) -> dict | list | None:
@@ -74,8 +71,7 @@ def fetch_json_response(
             logger.error(f"Failed to parse JSON: {e}")
     return None
 
-
-def initiate_scraping_session(url: str) -> tuple[requests.Session, str, str] | tuple[None, None, None]:
+def initiate_session(url: str) -> tuple[requests.Session, str, str] | tuple[None, None, None]:
     """
     Initiates a session and retrieves the necessary form state tokens (__VIEWSTATE, __EVENTVALIDATION).
 

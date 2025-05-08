@@ -9,7 +9,7 @@ def convert_column_name(column_name: str) -> str | None:
         str | None: The converted column name in format,
                     or None if the column should be skipped.
     """
-    if column_name == "순위":
+    if column_name in ["순위", "A_INITIAL_LK", "H_INITIAL_LK"]:
         return None
 
     column_mapping: dict[str, str] = {
@@ -40,7 +40,9 @@ def convert_column_name(column_name: str) -> str | None:
         "홈": "HOME_NM",
         "방문": "AWAY_NM",
         "구장": "S_NM",
-        "관중수": "S_CNT"
+        "관중수": "S_CNT",
+        "상대": "OPP",
+        "구분": "SIT"
     }
 
     return column_mapping.get(column_name, column_name
@@ -63,7 +65,6 @@ def convert_to_data(value) -> float | int | str | None:
         return value
 
     value = value.strip()
-
     if value in {"-", "&nbsp;"}:
         return None
 
