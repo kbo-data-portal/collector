@@ -1,20 +1,25 @@
 from abc import ABC, abstractmethod
-from config import logger
 from datetime import datetime
-import pandas as pd
 import os
+import json
+
+import pandas as pd
+
+from config import logger
 
 class KBOBaseScraper(ABC):
     """Base class for scraping KBO data (player, game, schedule, team)."""
 
     def __init__(self): 
-        self.save_name = None
-        self.save_dir = None
         self.start_year = 1982
         self.current_year = datetime.now().year
 
+        base_dir = os.getcwd()
+        self.backup_path = os.path.join(base_dir, "output", "raw")
+        self.save_path = os.path.join(base_dir, "output", "processed")
+
     @abstractmethod
-    def fetch(self, season):
+    def fetch(self, season, date):
         """Fetch raw data (must be implemented by subclass)."""
         pass
 
@@ -31,29 +36,53 @@ class KBOBaseScraper(ABC):
 
         try:
             return self._parse(response)
-        except (AttributeError, KeyError, TypeError) as e:
+        except (AttributeError, KeyError, TypeError, json.JSONDecodeError) as e:
             logger.error(f"Known parsing error: {e}")
         except Exception as e:
             logger.error(f"Unexpected error during parsing: {e}")
         return None, None
 
-    def save(self, data: list[dict] | dict, format: str):
+    def backup(self, data: str | dict, file_path: str, format: str):
         """
-        Save the scraped data to a file.
+        Backed up the scraped data to a file.
 
         Args:
-            data (list[dict] | dict): Data to save.
-            format (str, optional): Format of output file ('parquet', 'json', 'csv').
+            data (str | dict): Data to save.
+            file_path (str): Path of the output file (without extension).
+            format (str): Format of output file ('html', 'json').
+        """
+        try:
+            full_path = os.path.join(self.backup_path, f"{file_path}.{format}")
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+            if format == "html":
+                with open(full_path, "w", encoding="utf-8") as f:
+                    f.write(data)
+            elif format == "json":
+                with open(full_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+            else:
+                logger.warning(f"Unsupported file format: {format}")
+
+            logger.info(f"Backed up file: {full_path}")
+        except Exception as e:
+            logger.error(f"Failed to backup file: {e}")
+
+    def save(self, data: list, file_path: str, format: str):
+        """
+        Save the processed data to a file.
+
+        Args:
+            data (list): Data to save.
+            file_path (str): Path of the output file (without extension).
+            format (str): Format of output file ('parquet', 'json', 'csv').
         """
         if not isinstance(data, list):
             raise ValueError("Data must be a dictionary or a list of dictionaries.")
         
         try:
-            base_dir = os.getcwd()
-            output_path = os.path.join(base_dir, "output", self.save_dir)
-            os.makedirs(output_path, exist_ok=True)
-
-            full_path = os.path.join(output_path, f"{self.save_name}.{format}")
+            full_path = os.path.join(self.save_path, f"{file_path}.{format}")
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
             df = pd.DataFrame(data)
 
@@ -75,7 +104,7 @@ class KBOBaseScraper(ABC):
         except Exception as e:
             logger.error(f"Failed to save file: {e}")
 
-    def run(self, year: int = None, file_format: str = "parquet"):
+    def run(self, year: int = None, date: str = None, file_format: str = "parquet"):
         """
         Run scraping job over a target year or full range.
 
@@ -83,12 +112,15 @@ class KBOBaseScraper(ABC):
             year (int, optional): Target season. If not given, run from start_year to current_year.
             file_format (str): File format to save data.
         """
-        start = year or self.start_year
-        end = year or self.current_year
+        start = year if year else int(date[:4]) if date else self.start_year
+        end = year if year else int(date[:4]) if date else self.current_year
 
         for season in range(start, end + 1):
-            data = self.fetch(season)
-            if data:
-                self.save(data, file_format)
+            fetch_data = self.fetch(season, date)
+            if fetch_data:
+                for filename, data in fetch_data.items():
+                    self.save(data, filename, file_format)
             else:
                 logger.warning(f"No data found for season {season}.")
+            if date:
+                break
