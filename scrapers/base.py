@@ -5,12 +5,13 @@ import json
 
 import pandas as pd
 
-from config import logger
+from logger import get_logger
 
 class KBOBaseScraper(ABC):
     """Base class for scraping KBO data (player, game, schedule, team)."""
 
     def __init__(self): 
+        self.logger = get_logger()
         self.start_year = 1982
         self.current_year = datetime.now().year
 
@@ -31,15 +32,15 @@ class KBOBaseScraper(ABC):
     def parse(self, response):
         """Wrapper for parse logic with error handling."""
         if not response:
-            logger.error("Skipping data due to empty or invalid response.")
+            self.logger.error("Skipping data due to empty or invalid response.")
             return None, None
 
         try:
             return self._parse(response)
         except (AttributeError, KeyError, TypeError, json.JSONDecodeError) as e:
-            logger.error(f"Known parsing error: {e}")
+            self.logger.error(f"Known parsing error: {e}")
         except Exception as e:
-            logger.error(f"Unexpected error during parsing: {e}")
+            self.logger.error(f"Unexpected error during parsing: {e}")
         return None, None
 
     def backup(self, data: str | dict, file_path: str, format: str):
@@ -62,11 +63,11 @@ class KBOBaseScraper(ABC):
                 with open(full_path, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=2)
             else:
-                logger.warning(f"Unsupported file format: {format}")
+                self.logger.warning(f"Unsupported file format: {format}")
 
-            logger.info(f"Backed up file: {full_path}")
+            self.logger.info(f"Backed up file: {full_path}")
         except Exception as e:
-            logger.error(f"Failed to backup file: {e}")
+            self.logger.error(f"Failed to backup file: {e}")
 
     def save(self, data: list, file_path: str, format: str):
         """
@@ -98,11 +99,11 @@ class KBOBaseScraper(ABC):
             elif format == "csv":
                 df.to_csv(full_path, index=False, encoding="utf-8")
             else:
-                logger.warning(f"Unsupported file format: {format}")
+                self.logger.warning(f"Unsupported file format: {format}")
 
-            logger.info(f"Saved file: {full_path}")
+            self.logger.info(f"Saved file: {full_path}")
         except Exception as e:
-            logger.error(f"Failed to save file: {e}")
+            self.logger.error(f"Failed to save file: {e}")
 
     def run(self, year: int = None, date: str = None, file_format: str = "parquet"):
         """
@@ -121,6 +122,6 @@ class KBOBaseScraper(ABC):
                 for filename, data in fetch_data.items():
                     self.save(data, filename, file_format)
             else:
-                logger.warning(f"No data found for season {season}.")
+                self.logger.warning(f"No data found for season {season}.")
             if date:
                 break

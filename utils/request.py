@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from config import logger
+from logger import get_logger
+
+logger = get_logger()
 
 def send_post_request(
     url: str,

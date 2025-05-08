@@ -1,8 +1,6 @@
 
 import re
 
-from config import logger
-
 from scrapers.base import KBOBaseScraper
 from utils.convert import convert_row_data
 from utils.request import initiate_session, fetch_html
@@ -48,7 +46,7 @@ class PlayerSeasonStatsScraper(KBOBaseScraper):
     def _parse(self, response):
         thead_tr = response.select_one("thead tr")
         if not thead_tr:
-            logger.warning("No header datas found in response.")
+            self.logger.warning("No header datas found in response.")
             return None, None
         
         headers = ["P_ID"] + [th.get_text(strip=True) for th in thead_tr.find_all("th")]
@@ -65,10 +63,10 @@ class PlayerSeasonStatsScraper(KBOBaseScraper):
         for i, url in enumerate(self.urls):
             session, viewstate, eventvalidation = initiate_session(url)
             if session is None:
-                logger.error(f"Could not initiate session for URL: {url}")
+                self.logger.error(f"Could not initiate session for URL: {url}")
                 return
     
-            logger.info(f"Fetching {self.player_type} stats for season {season}...")
+            self.logger.info(f"Fetching {self.player_type} stats for season {season}...")
             self.payload["__VIEWSTATE"] = viewstate
             self.payload["__EVENTVALIDATION"] = eventvalidation
             self.payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeason$ddlSeason"] = str(season)
@@ -80,16 +78,16 @@ class PlayerSeasonStatsScraper(KBOBaseScraper):
                 try:
                     response = fetch_html(url, self.payload, session)
                     if response is None:
-                        logger.warning(f"No valid response for page {page_num}.")
+                        self.logger.warning(f"No valid response for page {page_num}.")
                         continue
                     
                     headers, rows = self.parse(response)
                     if headers is None and rows is None:
-                        logger.info(f"No rows returned for page {page_num}.")
+                        self.logger.info(f"No rows returned for page {page_num}.")
                         break
                     
                     if headers and not rows:
-                        logger.info(f"Last page reached at page {page_num}.")
+                        self.logger.info(f"Last page reached at page {page_num}.")
                         break
                     
                     self.backup(str(response), f"{file_path}_{i}_{page_num}", "html")
@@ -98,7 +96,7 @@ class PlayerSeasonStatsScraper(KBOBaseScraper):
                         result.setdefault(row[0], {"LE_ID": 1, "SR_ID": 0, "SEASON_ID": season})
                         result[row[0]].update(convert_row_data(headers, row))
                 except Exception as e:
-                    logger.error(f"Error fetching {self.player_type} stats for {page_num}: {e}")
+                    self.logger.error(f"Error fetching {self.player_type} stats for {page_num}: {e}")
                 
             session.close()
 
@@ -123,7 +121,7 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
     def _parse(self, response):
         thead_tr = response.select_one("thead tr")
         if not thead_tr:
-            logger.warning("No header datas found in response.")
+            self.logger.warning("No header datas found in response.")
             return None, None
         
         headers = [th.get_text(strip=True) for th in thead_tr.find_all("th")]
@@ -144,10 +142,10 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
             url = self.url.format(id=player_id, type=self.record_type)
             session, viewstate, eventvalidation = initiate_session(url)
             if session is None:
-                logger.error(f"Could not initiate session for URL: {url}")
+                self.logger.error(f"Could not initiate session for URL: {url}")
                 return
             
-            logger.info(f"Fetching {self.record_type} stats for player id {player_id}...")
+            self.logger.info(f"Fetching {self.record_type} stats for player id {player_id}...")
             self.payload["__VIEWSTATE"] = viewstate
             self.payload["__EVENTVALIDATION"] = eventvalidation
             self.payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlYear"] = str(season)
@@ -159,12 +157,12 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
                 try:
                     response = fetch_html(url, self.payload, session)
                     if response is None:
-                        logger.warning(f"No valid response for series {series}.")
+                        self.logger.warning(f"No valid response for series {series}.")
                         continue
                     
                     headers, rows = self.parse(response)
                     if not rows or rows[0][0] == "기록이 없습니다.":
-                        logger.info(f"No rows returned for series {series}.")
+                        self.logger.info(f"No rows returned for series {series}.")
                         continue
 
                     self.backup(str(response), f"{file_path}_{series}", "html")
@@ -175,7 +173,7 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
                         player_data.append(data)
 
                 except Exception as e:
-                    logger.error(f"Error fetching {self.record_type} stats for series {series}: {e}")
+                    self.logger.error(f"Error fetching {self.record_type} stats for series {series}: {e}")
                     continue
                 
                 result.setdefault(file_path, player_data)
