@@ -102,7 +102,8 @@ class GameResultScraper(KBOBaseScraper):
     def fetch(self, season, date):
         result = {}
         games = GameScheduleScraper().fetch(season, date)
-        for schedules in games.values():
+        for path, schedules in games.items():
+            self.save(schedules, path)
             for schedule in schedules:
                 game_id = schedule.get("G_ID", None)
 

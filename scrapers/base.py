@@ -69,7 +69,7 @@ class KBOBaseScraper(ABC):
         except Exception as e:
             self.logger.error(f"Failed to backup file: {e}")
 
-    def save(self, data: list, file_path: str, format: str):
+    def save(self, data: list, file_path: str):
         """
         Save the processed data to a file.
 
@@ -82,7 +82,7 @@ class KBOBaseScraper(ABC):
             raise ValueError("Data must be a dictionary or a list of dictionaries.")
         
         try:
-            full_path = os.path.join(self.save_path, f"{file_path}.{format}")
+            full_path = os.path.join(self.save_path, f"{file_path}.{self.format}")
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
             df = pd.DataFrame(data)
@@ -90,37 +90,39 @@ class KBOBaseScraper(ABC):
             for column in df.select_dtypes(exclude=["number", "datetime"]).columns:
                 df[column] = df[column].astype("string")
 
-            if format == "parquet":
+            if self.format == "parquet":
                 df.to_parquet(full_path, engine="pyarrow", index=False)
-            elif format == "json":
+            elif self.format == "json":
                 json_str = df.to_json(orient="records", indent=4, force_ascii=False).replace(r"\/", "/")
                 with open(full_path, "w", encoding="utf-8") as f:
                     f.write(json_str)
-            elif format == "csv":
+            elif self.format == "csv":
                 df.to_csv(full_path, index=False, encoding="utf-8")
             else:
-                self.logger.warning(f"Unsupported file format: {format}")
+                self.logger.warning(f"Unsupported file format: {self.format}")
 
             self.logger.info(f"Saved file: {full_path}")
         except Exception as e:
             self.logger.error(f"Failed to save file: {e}")
 
-    def run(self, year: int = None, date: str = None, file_format: str = "parquet"):
+    def run(self, year: int, date: str, format: str):
         """
-        Run scraping job over a target year or full range.
+        Run scraping job over a target year/date or full range.
 
         Args:
-            year (int, optional): Target season. If not given, run from start_year to current_year.
-            file_format (str): File format to save data.
+            year (int): Target season year.
+            date (str): Target date in 'YYYYMMDD' format to run the job for a specific day.
+            format (str): File format to save the scraped data (e.g., 'parquet', 'csv').
         """
         start = year if year else int(date[:4]) if date else self.start_year
         end = year if year else int(date[:4]) if date else self.current_year
+        self.format = format if format else "parquet"
 
         for season in range(start, end + 1):
             fetch_data = self.fetch(season, date)
             if fetch_data:
                 for filename, data in fetch_data.items():
-                    self.save(data, filename, file_format)
+                    self.save(data, filename)
             else:
                 self.logger.warning(f"No data found for season {season}.")
             if date:
