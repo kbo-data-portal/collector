@@ -7,13 +7,13 @@ from utils.request import fetch_json
 
 
 class GameScheduleScraper(KBOBaseScraper):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, format, series):
+        super().__init__(format, series)
 
         self.url = "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
         self.payload = {
             "leId": "1",
-            "srId": "0,1,3,4,5,7",
+            "srId": ",".join(map(str, self.series))
         }
 
     def _parse(self, response):
@@ -64,13 +64,15 @@ class GameScheduleScraper(KBOBaseScraper):
 
 
 class GameResultScraper(KBOBaseScraper):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, format, series):
+        super().__init__(format, series)
         
         self.url = "https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll"
         self.payload = {
             "leId": "1"
         }
+
+        self.games = GameScheduleScraper(format, series)
 
     def _parse(self, response):
         maxInnings = response.get("maxInning", None)
@@ -101,8 +103,9 @@ class GameResultScraper(KBOBaseScraper):
     
     def fetch(self, season, date):
         result = {}
-        games = GameScheduleScraper().fetch(season, date)
-        for path, schedules in games.items():
+
+        fetch_data = self.games.fetch(season, date)
+        for path, schedules in fetch_data.items():
             self.save(schedules, path)
             for schedule in schedules:
                 game_id = schedule.get("G_ID", None)

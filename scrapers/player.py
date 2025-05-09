@@ -6,8 +6,8 @@ from utils.convert import convert_row_data
 from utils.request import initiate_session, fetch_html
 
 class PlayerSeasonStatsScraper(KBOBaseScraper):
-    def __init__(self, player_type, detail=False):
-        super().__init__()
+    def __init__(self, format, series, player_type, detail=False):
+        super().__init__(format, series)
 
         if player_type == "hitter":
             self.urls = [
@@ -104,8 +104,8 @@ class PlayerSeasonStatsScraper(KBOBaseScraper):
     
     
 class PlayerDetailStatsScraper(KBOBaseScraper):
-    def __init__(self, player_type, record_type):
-        super().__init__()
+    def __init__(self, format, series, player_type, record_type):
+        super().__init__(format, series)
 
         if player_type == "hitter":
             self.url = "https://www.koreabaseball.com/Record/Player/HitterDetail/{type}.aspx?playerId={id}"
@@ -117,6 +117,8 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
         self.payload = {
             "__EVENTTARGET": "ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeries"
         }
+
+        self.players = PlayerSeasonStatsScraper(format, series, player_type, True)
 
     def _parse(self, response):
         thead_tr = response.select_one("thead tr")
@@ -135,8 +137,9 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
     
     def fetch(self, season, date):
         result = {}
-        players = PlayerSeasonStatsScraper(self.player_type, True).fetch(season, date)
-        for player in players[f"player/{season}/{self.player_type}/season_summary"]:
+
+        fetch_data = self.players.fetch(season, date)
+        for player in fetch_data[f"player/{season}/{self.player_type}/season_summary"]:
             player_id = player.get("P_ID", None)
 
             url = self.url.format(id=player_id, type=self.record_type)
@@ -152,25 +155,25 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
 
             player_data = []
             file_path = f"player/{season}/{self.player_type}/{player_id}/{self.record_type}"
-            for series in [0, 1, 3, 4, 5, 7]: 
-                self.payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeries"] = str(series)
+            for series_id in self.series: 
+                self.payload["ctl00$ctl00$ctl00$cphContents$cphContents$cphContents$ddlSeries"] = str(series_id)
                 try:
                     response = fetch_html(url, self.payload, session)
                     if response is None:
-                        self.logger.warning(f"No valid response for series {series}.")
+                        self.logger.warning(f"No valid response for series {series_id}.")
                         continue
                     
                     headers, rows = self.parse(response)
                     if not rows or rows[0][0] == "기록이 없습니다.":
-                        self.logger.info(f"No rows returned for series {series}.")
+                        self.logger.info(f"No rows returned for series {series_id}.")
                         continue
 
-                    self.backup(str(response), f"{file_path}_{series}", "html")
+                    self.backup(str(response), f"{file_path}_{series_id}", "html")
                     
                     for row in rows:
                         data = {
                             "LE_ID": 1, 
-                            "SR_ID": series, 
+                            "SR_ID": series_id, 
                             "SEASON_ID": season, 
                             "P_ID": player_id, 
                             "P_NM": player.get("P_NM", None)
@@ -179,7 +182,7 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
                         player_data.append(data)
 
                 except Exception as e:
-                    self.logger.error(f"Error fetching {self.record_type} stats for series {series}: {e}")
+                    self.logger.error(f"Error fetching {self.record_type} stats for series {series_id}: {e}")
                     continue
                 
                 result.setdefault(file_path, player_data)

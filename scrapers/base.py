@@ -1,7 +1,8 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
 import os
 import json
+import time
+from abc import ABC, abstractmethod
+from datetime import datetime
 
 import pandas as pd
 
@@ -10,7 +11,7 @@ from logger import get_logger
 class KBOBaseScraper(ABC):
     """Base class for scraping KBO data (player, game, schedule, team)."""
 
-    def __init__(self): 
+    def __init__(self, format: str, series: list[int]): 
         self.logger = get_logger()
         self.start_year = 1982
         self.current_year = datetime.now().year
@@ -18,6 +19,9 @@ class KBOBaseScraper(ABC):
         base_dir = os.getcwd()
         self.backup_path = os.path.join(base_dir, "output", "raw")
         self.save_path = os.path.join(base_dir, "output", "processed")
+
+        self.format = format if format else "parquet"
+        self.series = series if series else [0,1,3,4,5,7,8,9]
 
     @abstractmethod
     def _parse(self, response) -> tuple[list, list]:
@@ -105,18 +109,18 @@ class KBOBaseScraper(ABC):
         except Exception as e:
             self.logger.error(f"Failed to save file: {e}")
 
-    def run(self, year: int, date: str, format: str):
+    def run(self, year: int, date: str):
         """
         Run scraping job over a target year/date or full range.
 
         Args:
             year (int): Target season year.
             date (str): Target date in 'YYYYMMDD' format to run the job for a specific day.
-            format (str): File format to save the scraped data (e.g., 'parquet', 'csv').
         """
+        start_time = time.time()
+
         start = year if year else int(date[:4]) if date else self.start_year
         end = year if year else int(date[:4]) if date else self.current_year
-        self.format = format if format else "parquet"
 
         for season in range(start, end + 1):
             fetch_data = self.fetch(season, date)
@@ -127,3 +131,6 @@ class KBOBaseScraper(ABC):
                 self.logger.warning(f"No data found for season {season}.")
             if date:
                 break
+
+        end_time = time.time()
+        self.logger.info(f"Scraping completed in {(end_time - start_time):.2f} seconds.")

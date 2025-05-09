@@ -1,22 +1,23 @@
 import argparse
 
+from scrapers.base import KBOBaseScraper
 from scrapers.game import GameScheduleScraper, GameResultScraper
 from scrapers.player import PlayerSeasonStatsScraper, PlayerDetailStatsScraper
 
 
-def get_scrapers(args: argparse.Namespace) -> list:
+def get_scrapers(command, format, series) -> list[KBOBaseScraper]:
     """Return a list of scraper instances based on the selected command."""
-    if args.command == "schedule":
-        return [GameScheduleScraper()]
-    elif args.command == "game":
-        return [GameResultScraper()]
-    elif args.command == "player":
+    if command == "schedule":
+        return [GameScheduleScraper(format, series)]
+    elif command == "game":
+        return [GameResultScraper(format, series)]
+    elif command == "player":
         scrapers = []
         for pt in ["hitter", "pitcher", "fielder", "runner"]:
-            scrapers.append(PlayerSeasonStatsScraper(pt))
+            scrapers.append(PlayerSeasonStatsScraper(format, series, pt))
         for pt in ["hitter", "pitcher"]:
-            scrapers.append(PlayerDetailStatsScraper(pt, "daily"))
-            scrapers.append(PlayerDetailStatsScraper(pt, "situation"))
+            scrapers.append(PlayerDetailStatsScraper(format, series, pt, "daily"))
+            scrapers.append(PlayerDetailStatsScraper(format, series, pt, "situation"))
         return scrapers
     else:
         return []
@@ -32,7 +33,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Common format argument function
     def add_format_argument(parser: argparse.ArgumentParser) -> None:
-        parser.add_argument("-s", "--season", type=int, help="Season year (e.g., 2011)")
+        parser.add_argument("-y", "--year", type=int, help="Season year (e.g., 2011)")
         parser.add_argument("-d", "--date", type=str, help="Specify date (YYYYMMDD)")
         parser.add_argument(
             "-f", "--format",
@@ -40,6 +41,13 @@ def create_parser() -> argparse.ArgumentParser:
             choices=["parquet", "json", "csv"],
             default="csv",
             help="Output format: 'parquet', 'json', or 'csv' (default: csv)."
+        )
+        parser.add_argument(
+            "-s", "--series",
+            type=int,
+            choices=[0,1,3,4,5,7,8,9],
+            default=0,
+            help="Series ID (default: 0) - 0: Regular Season, 1: Preseason, 3: Semi-PO, 4: Wildcard, 5: Playoff, 7: Korean Series, 8: International, 9: All-Star)"
         )
 
     # Schedule data
@@ -49,7 +57,6 @@ def create_parser() -> argparse.ArgumentParser:
     # Game data
     game_parser = subparsers.add_parser("game", help="Scrape game data")
     add_format_argument(game_parser)
-    game_parser.set_defaults(func=GameResultScraper())
 
     # Player data
     player_parser = subparsers.add_parser("player", help="Scrape player data")
@@ -62,13 +69,13 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    scrapers = get_scrapers(args)
+    scrapers = get_scrapers(args.command, args.format, [args.series])
     if not scrapers:
         parser.print_help()
         return
 
     for scraper in scrapers:
-        scraper.run(args.season, args.date, args.format)
+        scraper.run(args.year, args.date)
 
 
 if __name__ == "__main__":
