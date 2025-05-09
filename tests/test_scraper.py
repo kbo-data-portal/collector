@@ -9,6 +9,7 @@ def _test_scraper(scraper, test_season, test_date, column):
     This function checks that the scraped data for each fetched entry has the expected column structure.
     """
     fetch_data = scraper.fetch(test_season, test_date)
+    assert fetch_data
     for value in fetch_data.values():
         assert list(value[0].keys()) == column
 
@@ -26,7 +27,7 @@ def test_schedule(test_season, test_date):
               "T_SCORE_CN", "B_SCORE_CN", "TV_IF", "VS_GAME_CN", "STRIKE_CN", "BALL_CN", "OUT_CN", "B1_BAT_ORDER_NO", "B2_BAT_ORDER_NO", "B3_BAT_ORDER_NO", 
               "T_P_ID", "T_P_NM", "B_P_ID", "B_P_NM", "GAME_SC_ID", "GAME_SC_NM", "IE_ENTRY_CK", "START_PIT_CK", "T_GROUP_SC", "T_RANK_NO", "B_GROUP_SC", "B_RANK_NO", 
               "ROUND_SC", "DETAIL_SC", "GAME_NO", "LINEUP_CK", "VOD_CK", "KBOT_SE", "SCORE_CK", "CHECK_SWING_CK"]
-    _test_scraper(GameScheduleScraper(), test_season, test_date, column)
+    _test_scraper(GameScheduleScraper(None, [7]), test_season, test_date, column)
 
 
 def test_game(test_season, test_date):
@@ -40,7 +41,7 @@ def test_game(test_season, test_date):
     column = ["IS_HOME", "LE_ID", "SR_ID", "G_ID", "G_DT", "SEASON_ID", "HOME_NM", "HOME_ID", "AWAY_NM", "AWAY_ID", "S_NM", "CROWD_CN", 
               "H_W_CN", "H_L_CN", "H_D_CN", "A_W_CN", "A_L_CN", "A_D_CN", "T_SCORE_CN", "B_SCORE_CN", "START_TM", "END_TM", "USE_TM", "FULL_HOME_NM", "FULL_AWAY_NM", 
               "INN_1", "INN_2", "INN_3", "INN_4", "INN_5", "INN_6", "INN_7", "INN_8", "INN_9", "INN_10", "INN_11", "INN_12", "INN_13", "INN_14", "INN_15", "R", "H", "E", "B"]
-    _test_scraper(GameResultScraper(), test_season, test_date, column)
+    _test_scraper(GameResultScraper(None, [7]), test_season, test_date, column)
 
 
 def test_player(test_season, test_date):
@@ -59,5 +60,5 @@ def test_player(test_season, test_date):
     ]
     player_types = ["hitter", "pitcher", "runner", "fielder"]
     for col, pt in zip(columns, player_types):
-        _test_scraper(PlayerSeasonStatsScraper(pt, True), test_season, test_date, col)
+        _test_scraper(PlayerSeasonStatsScraper(None, [7], pt, True), test_season, test_date, col)
 
