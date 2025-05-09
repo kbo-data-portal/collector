@@ -109,13 +109,13 @@ class KBOBaseScraper(ABC):
         except Exception as e:
             self.logger.error(f"Failed to save file: {e}")
 
-    def run(self, year: int, date: str):
+    def run(self, year: int, date: str = None):
         """
         Run scraping job over a target year/date or full range.
 
         Args:
             year (int): Target season year.
-            date (str): Target date in 'YYYYMMDD' format to run the job for a specific day.
+            date (str, Optional): Target date in 'YYYYMMDD' format to run the job for a specific day.
         """
         start_time = time.time()
 
