@@ -168,7 +168,13 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
                     self.backup(str(response), f"{file_path}_{series}", "html")
                     
                     for row in rows:
-                        data = {"LE_ID": 1, "SR_ID": series, "SEASON_ID": season, "P_ID": player_id}
+                        data = {
+                            "LE_ID": 1, 
+                            "SR_ID": series, 
+                            "SEASON_ID": season, 
+                            "P_ID": player_id, 
+                            "P_NM": player.get("P_NM", None)
+                        }
                         data.update(convert_row_data(headers, row))
                         player_data.append(data)
 
