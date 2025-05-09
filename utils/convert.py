@@ -1,3 +1,8 @@
+from logger import get_logger
+
+logger = get_logger()
+
+
 def convert_column_name(column_name: str) -> str | None:
     """
     Converts a column name to a standardized column key.
