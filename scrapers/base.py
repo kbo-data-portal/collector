@@ -20,13 +20,13 @@ class KBOBaseScraper(ABC):
         self.save_path = os.path.join(base_dir, "output", "processed")
 
     @abstractmethod
-    def fetch(self, season, date):
-        """Fetch raw data (must be implemented by subclass)."""
+    def _parse(self, response) -> tuple[list, list]:
+        """Parse raw response into structured data (must be implemented by subclass)."""
         pass
 
     @abstractmethod
-    def _parse(self, response):
-        """Parse raw response into structured data (must be implemented by subclass)."""
+    def fetch(self, season: int, date: str) -> dict[str, list]:
+        """Fetch raw data (must be implemented by subclass)."""
         pass
 
     def parse(self, response):
