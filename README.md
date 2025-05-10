@@ -83,7 +83,7 @@ python run.py <command> --help
 ### Series ID
 Each game record includes a `SR_ID` field that indicates the type of league or stage of the season.
 
-| LE_ID | Description                  |
+| SR_ID | Description                  |
 |-------|------------------------------|
 | 0     | Regular Season               |
 | 1     | Preseason Game               |
