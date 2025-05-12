@@ -175,6 +175,7 @@ class PlayerDetailStatsScraper(KBOBaseScraper):
                             "LE_ID": 1, 
                             "SR_ID": series_id, 
                             "SEASON_ID": season, 
+                            "G_DT": f"{season}{row[0].replace('.', '')}", 
                             "P_ID": player_id, 
                             "P_NM": player.get("P_NM", None)
                         }
