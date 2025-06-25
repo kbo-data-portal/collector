@@ -11,8 +11,8 @@ This repository is dedicated to collecting and scraping KBO (Korea Baseball Orga
 ### Steps to Install
 1. **Clone the repository**
     ```bash
-    git clone https://github.com/leewr9/kbo-data-collector.git
-    cd kbo-data-collector
+    git clone https://github.com/kbo-data-portal/collector.git
+    cd collector
     ```
 
 2. **Install dependencies**
