@@ -2,6 +2,7 @@ import os
 import logging
 import time
 
+
 def get_logger() -> logging.Logger:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -14,9 +15,13 @@ def get_logger() -> logging.Logger:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.DEBUG)
 
-        file_handler = logging.FileHandler(os.path.join(log_path, f"{time.strftime('%Y-%m-%d_%H')}.log"))
+        file_handler = logging.FileHandler(
+            os.path.join(log_path, f"{time.strftime('%Y-%m-%d_%H')}.log")
+        )
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
 
         logger.addHandler(stream_handler)
         logger.addHandler(file_handler)

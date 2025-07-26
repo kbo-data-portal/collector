@@ -29,25 +29,29 @@ def create_parser() -> argparse.ArgumentParser:
         description="KBO Data Scraping Tool",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    subparsers = parser.add_subparsers(dest="command", help="Choose a scraping target", required=True)
+    subparsers = parser.add_subparsers(
+        dest="command", help="Choose a scraping target", required=True
+    )
 
     # Common format argument function
     def add_format_argument(parser: argparse.ArgumentParser) -> None:
         parser.add_argument("-y", "--year", type=int, help="Season year (e.g., 2011)")
         parser.add_argument("-d", "--date", type=str, help="Specify date (YYYYMMDD)")
         parser.add_argument(
-            "-f", "--format",
+            "-f",
+            "--format",
             type=str,
             choices=["parquet", "json", "csv"],
             default="csv",
-            help="Output format: 'parquet', 'json', or 'csv' (default: csv)."
+            help="Output format: 'parquet', 'json', or 'csv' (default: csv).",
         )
         parser.add_argument(
-            "-s", "--series",
+            "-s",
+            "--series",
             type=int,
-            choices=[0,1,3,4,5,7,8,9],
+            choices=[0, 1, 3, 4, 5, 7, 8, 9],
             default=0,
-            help="Series ID (default: 0) - 0: Regular Season, 1: Preseason, 3: Semi-PO, 4: Wildcard, 5: Playoff, 7: Korean Series, 8: International, 9: All-Star)"
+            help="Series ID (default: 0) - 0: Regular Season, 1: Preseason, 3: Semi-PO, 4: Wildcard, 5: Playoff, 7: Korean Series, 8: International, 9: All-Star)",
         )
 
     # Schedule data

@@ -8,10 +8,11 @@ import pandas as pd
 
 from logger import get_logger
 
+
 class KBOBaseScraper(ABC):
     """Base class for scraping KBO data (player, game, schedule, team)."""
 
-    def __init__(self, format: str, series: list[int]): 
+    def __init__(self, format: str, series: list[int]):
         self.logger = get_logger()
         self.start_year = 1982
         self.current_year = datetime.now().year
@@ -21,7 +22,7 @@ class KBOBaseScraper(ABC):
         self.save_path = os.path.join(base_dir, "output", "processed")
 
         self.format = format if format else "parquet"
-        self.series = series if series else [0,1,3,4,5,7,8,9]
+        self.series = series if series else [0, 1, 3, 4, 5, 7, 8, 9]
 
     @abstractmethod
     def _parse(self, response) -> tuple[list, list]:
@@ -84,7 +85,7 @@ class KBOBaseScraper(ABC):
         """
         if not isinstance(data, list):
             raise ValueError("Data must be a dictionary or a list of dictionaries.")
-        
+
         try:
             full_path = os.path.join(self.save_path, f"{file_path}.{self.format}")
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
@@ -97,7 +98,9 @@ class KBOBaseScraper(ABC):
             if self.format == "parquet":
                 df.to_parquet(full_path, engine="pyarrow", index=False)
             elif self.format == "json":
-                json_str = df.to_json(orient="records", indent=4, force_ascii=False).replace(r"\/", "/")
+                json_str = df.to_json(
+                    orient="records", indent=4, force_ascii=False
+                ).replace(r"\/", "/")
                 with open(full_path, "w", encoding="utf-8") as f:
                     f.write(json_str)
             elif self.format == "csv":
@@ -133,4 +136,6 @@ class KBOBaseScraper(ABC):
                 break
 
         end_time = time.time()
-        self.logger.info(f"Scraping completed in {(end_time - start_time):.2f} seconds.")
+        self.logger.info(
+            f"Scraping completed in {(end_time - start_time):.2f} seconds."
+        )

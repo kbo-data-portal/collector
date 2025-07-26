@@ -6,11 +6,7 @@ from logger import get_logger
 logger = get_logger()
 
 
-def fetch_html(
-    url: str,
-    payload: dict,
-    session: Session
-) -> BeautifulSoup | None:
+def fetch_html(url: str, payload: dict, session: Session) -> BeautifulSoup | None:
     """
     Sends a POST request and returns the parsed HTML content as a BeautifulSoup object.
 
@@ -24,14 +20,11 @@ def fetch_html(
     """
     html_text = html(url, payload=payload, session=session)
     if html_text:
-        return BeautifulSoup(html_text , "lxml")
+        return BeautifulSoup(html_text, "lxml")
     return None
 
 
-def fetch_json(
-    url: str,
-    payload: dict
-) -> dict | list | None:
+def fetch_json(url: str, payload: dict) -> dict | list | None:
     """
     Sends a POST request and parses the JSON response.
 
@@ -44,7 +37,7 @@ def fetch_json(
     """
     json_data = json(url, payload=payload)
     if json_data:
-        return json_data 
+        return json_data
     return None
 
 
@@ -62,7 +55,7 @@ def initiate_session(url: str) -> tuple[Session, str, str] | tuple[None, None, N
     session = Session()
 
     try:
-        html_text  = html(url, session=session)
+        html_text = html(url, session=session)
         soup = BeautifulSoup(html_text, "lxml")
 
         viewstate_tag = soup.find("input", {"id": "__VIEWSTATE"})
@@ -85,4 +78,3 @@ def initiate_session(url: str) -> tuple[Session, str, str] | tuple[None, None, N
         logger.error(f"Unexpected error during session initialization: {e}")
 
     return None, None, None
-

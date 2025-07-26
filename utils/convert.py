@@ -47,13 +47,13 @@ def convert_column_name(column_name: str) -> str | None:
         "구장": "S_NM",
         "관중수": "S_CNT",
         "상대": "OPP",
-        "구분": "SIT"
+        "구분": "SIT",
     }
 
-    return column_mapping.get(column_name, column_name
-                              .replace("/", "_")
-                              .replace("-", "_")
-                              .replace(" ", "_").upper())
+    return column_mapping.get(
+        column_name,
+        column_name.replace("/", "_").replace("-", "_").replace(" ", "_").upper(),
+    )
 
 
 def convert_to_data(value) -> float | int | str | None:
@@ -102,7 +102,9 @@ def convert_to_data(value) -> float | int | str | None:
         return value
 
 
-def convert_row_data(headers: list[str], values: list[str]) -> dict[str, float | int | str | None]:
+def convert_row_data(
+    headers: list[str], values: list[str]
+) -> dict[str, float | int | str | None]:
     """
     Converts a row of raw HTML data into a dictionary with standardized keys and cleaned values.
 
@@ -121,4 +123,3 @@ def convert_row_data(headers: list[str], values: list[str]) -> dict[str, float |
             row_data[key] = convert_to_data(value)
 
     return row_data
-
