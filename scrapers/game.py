@@ -11,25 +11,26 @@ class GameScheduleScraper(KBOBaseScraper):
         super().__init__(format, series)
 
         self.url = "https://www.koreabaseball.com/ws/Main.asmx/GetKboGameList"
-        self.payload = {
-            "leId": "1",
-            "srId": ",".join(map(str, self.series))
-        }
+        self.payload = {"leId": "1", "srId": ",".join(map(str, self.series))}
 
     def _parse(self, response):
         games = response.get("game", [])
         if not games:
             self.logger.warning("No game entries found in response.")
             return None, None
-        
+
         headers = [key.strip() for key in games[0].keys()]
         rows = [[value for value in game.values()] for game in games]
 
         return headers, rows
-    
+
     def fetch(self, season, date):
-        start_date = datetime.strptime(date, "%Y%m%d") if date else datetime(season, 1, 1)
-        end_date = datetime.strptime(date, "%Y%m%d") if date else datetime(season, 12, 31)
+        start_date = (
+            datetime.strptime(date, "%Y%m%d") if date else datetime(season, 1, 1)
+        )
+        end_date = (
+            datetime.strptime(date, "%Y%m%d") if date else datetime(season, 12, 31)
+        )
 
         result = {}
         while start_date <= end_date:
@@ -48,7 +49,7 @@ class GameScheduleScraper(KBOBaseScraper):
                 if not rows:
                     self.logger.info(f"No rows returned for date {date_str}.")
                     continue
-                    
+
                 file_path = f"game/schedule/{season}/{date_str}"
                 self.backup(response, file_path, "json")
 
@@ -66,11 +67,9 @@ class GameScheduleScraper(KBOBaseScraper):
 class GameResultScraper(KBOBaseScraper):
     def __init__(self, format, series):
         super().__init__(format, series)
-        
+
         self.url = "https://www.koreabaseball.com/ws/Schedule.asmx/GetScoreBoardScroll"
-        self.payload = {
-            "leId": "1"
-        }
+        self.payload = {"leId": "1"}
 
         self.games = GameScheduleScraper(format, series)
 
@@ -79,8 +78,8 @@ class GameResultScraper(KBOBaseScraper):
         if not maxInnings:
             self.logger.warning("No inning datas found in response.")
             return None, None
-        
-        headers, rows = ["IS_HOME"], [[False],[True]]
+
+        headers, rows = ["IS_HOME"], [[False], [True]]
         for key, value in response.items():
             if key == "maxInning":
                 break
@@ -93,14 +92,14 @@ class GameResultScraper(KBOBaseScraper):
 
         tables = [
             json.loads(response.get("table2", "[]")),
-            json.loads(response.get("table3", "[]"))
+            json.loads(response.get("table3", "[]")),
         ]
         for table in tables:
             rows[0].extend([cell["Text"] for cell in table["rows"][0]["row"]])
             rows[1].extend([cell["Text"] for cell in table["rows"][1]["row"]])
 
         return headers, rows
-    
+
     def fetch(self, season, date):
         result = {}
 
@@ -128,13 +127,13 @@ class GameResultScraper(KBOBaseScraper):
 
                     file_path = f"game/result/{season}/{game_id[:8]}"
                     self.backup(response, file_path, "json")
-                    
+
                     for row in rows:
                         result.setdefault(file_path, [])
                         result[file_path].append(convert_row_data(headers, row))
                 except Exception as e:
-                    self.logger.error(f"Error fetching result for game id {game_id}: {e}")
+                    self.logger.error(
+                        f"Error fetching result for game id {game_id}: {e}"
+                    )
 
         return result
-    
-    

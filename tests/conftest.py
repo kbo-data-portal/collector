@@ -17,4 +17,3 @@ def test_date():
 def test_game_id():
     # Game ID for Korean Series Game 6, where Samsung Lions defeated Nexen Heroes 4-2
     return "20141111SSWO0"
-
