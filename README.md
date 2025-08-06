@@ -1,101 +1,112 @@
 # KBO Data Portal - Collector
-[![Test Scraper Status](https://github.com/KBO-Data-Portal/collector/actions/workflows/test_scraper.yml/badge.svg)](https://github.com/KBO-Data-Portal/collector/actions/workflows/test_scraper.yml)
 
-This repository is dedicated to collecting and scraping KBO (Korea Baseball Organization) data. It includes scripts and processes for gathering player statistics, team data, game results, and other related information.
+[![build-test](https://github.com/KBO-Data-Portal/collector/actions/workflows/build-test.yml/badge.svg)](https://github.com/KBO-Data-Portal/collector/actions/workflows/build-test.yml)
 
+This repository is dedicated to collecting and scraping KBO (Korea Baseball Organization) data.
+It includes scripts and processes for gathering player statistics, team data, game results, and other related information.
+
+## Feature
+
+- Scrape KBO data including game results, schedules, and player statistics
+- Supports various output formats: `Parquet`, `JSON`, `CSV`
+- Flexible command-line interface with multiple scraping commands
+- Filter by year, specific date, and series ID (league/stage type)
 
 ## Installation
+
 ### Requirements
+
 - Python 3.12+ is required.
 
 ### Steps to Install
+
 1. **Clone the repository**
-    ```bash
-    git clone https://github.com/kbo-data-portal/collector.git
-    cd collector
-    ```
+
+   ```bash
+   git clone https://github.com/kbo-data-portal/collector.git
+   cd collector
+   ```
 
 2. **Install dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
 
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Usage
-This project provides a tool for scraping KBO data in various formats. You can specify the target data and output format using commands.
+
+This project provides a command-line tool for scraping KBO data.
+You can specify the target data and output format using commands.
 
 ### Command Syntax
+
 ```bash
 python run.py <command> [options]
 ```
-Where `<command>` is a required command that must be selected, and `[options]` are optional and apply to all commands, providing additional configuration or functionality.
+
+- `<command>` — The target data type (game, schedule, player)
+- `[options]` — Additional filters and configurations
 
 ### Options
-- `-y, --year`: Specify the year for which to collect game data (e.g., `2014`).
-- `-d, --date`: Specify a specific date (in `YYYYMMDD` format) to scrape data for.
-- `-f, --format`: Specify the output format. Supported formats are `parquet`, `json`, and `csv`.
-- `-s, --series`: Specify the Series ID to indicate the type of league or competition stage [See Series ID](#series-id).
+
+| Option         | Description                                             |
+| -------------- | ------------------------------------------------------- |
+| `-y, --year`   | Specify the year (e.g., 2014)                           |
+| `-d, --date`   | Specific date in YYYYMMDD format                        |
+| `-f, --format` | Output format: parquet, json, csv                       |
+| `-s, --series` | Series ID to indicate league/stage type (see Series ID) |
 
 ### Commands
 
-#### `game`
-Used to scrape game-related data.
+`game`
+Scrape game-related data.
 
-##### Example
-Scrape game data for the 2014 season in CSV format
 ```bash
-python run.py game -y 2014 -f csv
+python run.py game -y 2014 -f csv  # Season data
+python run.py game -d 20141111 -f json  # Specific date data
 ```
 
-Scrape game data for a specific date (2014-11-11) in JSON format
-```bash
-python run.py game -d 20141111 -f json
-```
+`schedule`
+Scrape schedule of games.
 
-#### `schedule`
-Used to scrape the schedule of games for a season.
-
-##### Example
-Scrape schedule data for the 2014 season in Parquet format
 ```bash
 python run.py schedule -y 2014 -f parquet
 ```
 
-#### `player`
-Used to scrape player statistics data.
+`player`
+Scrape player statistics.
 
-##### Example
-Scrape player data for the 2014 season in CSV format
 ```bash
 python run.py player -y 2014 -f csv
 ```
 
 ### Help
-To get more detailed information about any command, you can use the `--help` flag. This will display the available options and arguments for that specific command.
+
+For detailed command usage, run:
 
 ```bash
 python run.py <command> --help
 ```
 
-
 ## Data Description
 
 ### Series ID
-Each game record includes a `SR_ID` field that indicates the type of league or stage of the season.
 
-| SR_ID | Description                  |
-|-------|------------------------------|
-| 0     | Regular Season               |
-| 1     | Preseason Game               |
-| 3     | Semi-Playoffs                |
-| 4     | Wild Card Round              |
-| 5     | Playoffs                     |
-| 7     | Korean Series                |
-| 8     | International Competitions   |
-| 9     | All-ytar Game                |
+Each game record includes a `SR_ID` field representing the league/stage type:
 
-You can use this field to filter or categorize games based on the competition stage.
+| SR_ID | Description                |
+| ----- | -------------------------- |
+| 0     | Regular Season             |
+| 1     | Preseason Game             |
+| 3     | Semi-Playoffs              |
+| 4     | Wild Card Round            |
+| 5     | Playoffs                   |
+| 7     | Korean Series              |
+| 8     | International Competitions |
+| 9     | All-star Game              |
 
+You can use this field to filter games based on the competition stage.
 
-## License  
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
