@@ -49,36 +49,33 @@ python run.py <command> [options]
 
 ### Options
 
-| Option         | Description                                             |
-| -------------- | ------------------------------------------------------- |
-| `-y, --year`   | Specify the year (e.g., 2014)                           |
-| `-d, --date`   | Specific date in YYYYMMDD format                        |
-| `-f, --format` | Output format: parquet, json, csv                       |
-| `-s, --series` | Series ID to indicate league/stage type (see Series ID) |
+| Option           | Description                                                           |Default|
+| ---------------- | --------------------------------------------------------------------- |-|
+| `-y`, `--year`   | Specify the year (e.g., `2014`)                                       |_required_|
+| `-d`, `--date`   | Specific date in `YYYYMMDD` format                                    |_required_|
+| `-f`, `--format` | Output format (default: `csv`): `parquet`, `json`, `csv`              |`csv`|
+| `-s`, `--series` | Series ID to indicate league/stage type (see [Series ID](#series-id)) |`0` (Regular Season)|
 
 ### Commands
 
-`game`
-Scrape game-related data.
+- `game`
+  - Scrape game-related data:
+    ```bash
+    python run.py game -y 2014 -f csv  # Season data
+    python run.py game -d 20141111 -f json  # Specific date data
+    ```
 
-```bash
-python run.py game -y 2014 -f csv  # Season data
-python run.py game -d 20141111 -f json  # Specific date data
-```
+- `schedule`
+  - Scrape schedule of games:
+    ```bash
+    python run.py schedule -y 2014 -f parquet
+    ```
 
-`schedule`
-Scrape schedule of games.
-
-```bash
-python run.py schedule -y 2014 -f parquet
-```
-
-`player`
-Scrape player statistics.
-
-```bash
-python run.py player -y 2014 -f csv
-```
+- `player`
+  - Scrape player statistics:
+    ```bash
+    python run.py player -y 2014 -f csv
+    ```
 
 ### Help
 
@@ -96,7 +93,7 @@ Each game record includes a `SR_ID` field representing the league/stage type:
 
 | SR_ID | Description                |
 | ----- | -------------------------- |
-| 0     | Regular Season             |
+| 0     | Regular Season    |
 | 1     | Preseason Game             |
 | 3     | Semi-Playoffs              |
 | 4     | Wild Card Round            |
