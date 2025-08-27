@@ -49,12 +49,12 @@ python run.py <command> [options]
 
 ### Options
 
-| Option           | Description                                                           |Default|
-| ---------------- | --------------------------------------------------------------------- |-|
-| `-y`, `--year`   | Specify the year (e.g., `2014`)                                       |_required_|
-| `-d`, `--date`   | Specific date in `YYYYMMDD` format                                    |_required_|
-| `-f`, `--format` | Output format (default: `csv`): `parquet`, `json`, `csv`              |`csv`|
-| `-s`, `--series` | Series ID to indicate league/stage type (see [Series ID](#series-id)) |`0` (Regular Season)|
+| Option           | Description                                                           | Default              |
+| ---------------- | --------------------------------------------------------------------- | -------------------- |
+| `-y`, `--year`   | Specify the year                                                      | _required_           |
+| `-d`, `--date`   | Specific date in `YYYYMMDD` format                                    | _required_           |
+| `-f`, `--format` | Output format: `parquet`, `json`, `csv`                               | `csv`                |
+| `-s`, `--series` | Series ID to indicate league/stage type (see [Series ID](#series-id)) | `0` (Regular Season) |
 
 ### Commands
 
@@ -93,7 +93,7 @@ Each game record includes a `SR_ID` field representing the league/stage type:
 
 | SR_ID | Description                |
 | ----- | -------------------------- |
-| 0     | Regular Season    |
+| 0     | Regular Season             |
 | 1     | Preseason Game             |
 | 3     | Semi-Playoffs              |
 | 4     | Wild Card Round            |
