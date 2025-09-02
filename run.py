@@ -35,12 +35,8 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Common format argument function
     def add_format_argument(parser: argparse.ArgumentParser) -> None:
-        parser.add_argument(
-            "-y", "--year", required=True, type=int, help="Season year (e.g., 2014)"
-        )
-        parser.add_argument(
-            "-d", "--date", required=True, type=str, help="Specify date (YYYYMMDD)"
-        )
+        parser.add_argument("-y", "--year", type=int, help="Season year (e.g., 2014)")
+        parser.add_argument("-d", "--date", type=str, help="Specify date (YYYYMMDD)")
         parser.add_argument(
             "-f",
             "--format",

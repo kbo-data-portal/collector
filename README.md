@@ -51,10 +51,12 @@ python run.py <command> [options]
 
 | Option           | Description                                                           | Default              |
 | ---------------- | --------------------------------------------------------------------- | -------------------- |
-| `-y`, `--year`   | Specify the year                                                      | _required_           |
-| `-d`, `--date`   | Specific date in `YYYYMMDD` format                                    | _required_           |
+| `-y`, `--year`   | Specify the year                                                      | `None`               |
+| `-d`, `--date`   | Specific date in `YYYYMMDD` format                                    | `None`               |
 | `-f`, `--format` | Output format: `parquet`, `json`, `csv`                               | `csv`                |
 | `-s`, `--series` | Series ID to indicate league/stage type (see [Series ID](#series-id)) | `0` (Regular Season) |
+
+If neither `--year` nor `--date` is specified, the program will fetch all available data from 1982 to the present.
 
 ### Commands
 
