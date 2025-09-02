@@ -70,7 +70,7 @@ def convert_to_data(value) -> float | int | str | None:
         return value
 
     value = value.strip()
-    if value in {"-", "&nbsp;"}:
+    if value in {"", "-", "&nbsp;"}:
         return None
 
     try:
